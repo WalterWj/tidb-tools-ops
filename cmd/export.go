@@ -15,18 +15,20 @@
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
+	"strings"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 )
 
 var (
-	host, username, password string
-	port                     int
+	host, username, password, port string
 )
 
 const (
-	userQ = "select user,host,authentication_string from mysql.user;"
+	userQ = "select user,host,authentication_string from user;"
 )
 
 // exportCmd represents the export command
@@ -40,6 +42,22 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		path := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
+		db, err := sql.Open("mysql", path)
+		if err != nil {
+			fmt.Println("connect is fail")
+		}
+		rows, err := db.Query(userQ)
+		if err != nil {
+			fmt.Printf("execute %s fail", userQ)
+		}
+		var user, host, pas string
+		for rows.Next() {
+			err := rows.Scan(&user, &host, &pas)
+			if err != nil {
+				fmt.Println(&user)
+			}
+		}
 		fmt.Println("export called")
 	},
 }
@@ -59,8 +77,8 @@ func init() {
 
 	exportCmd.Flags().StringVarP(&username, "dbusername", "u", "root", "Database user")
 	exportCmd.Flags().StringVarP(&host, "dbhost", "H", "127.0.0.1", "Database host")
-	exportCmd.Flags().StringVarP(&password, "dbpassword", "p", "", "Database passowrd")
-	exportCmd.Flags().IntVarP(&port, "dbport", "P", 4000, "Database Port")
-	exportCmd.Flags().IntVarP(&port, "statusport", "s", 10080, "TiDB Status Port")
+	exportCmd.Flags().StringVarP(&password, "dbpassword", "p", "123456", "Database passowrd")
+	exportCmd.Flags().StringVarP(&port, "dbport", "P", "4000", "Database Port")
+	// exportCmd.Flags().IntVarP(&port, "statusport", "s", 10080, "TiDB Status Port")
 
 }
