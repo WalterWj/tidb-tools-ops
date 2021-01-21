@@ -17,6 +17,7 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -49,16 +50,39 @@ to quickly create a Cobra application.`,
 		}
 		rows, err := db.Query(userQ)
 		if err != nil {
-			fmt.Printf("execute %s fail", userQ)
+			fmt.Printf("execute %v fail", userQ)
 		}
-		var user, host, pas string
+		var user, host, pas, grant string
 		for rows.Next() {
 			err := rows.Scan(&user, &host, &pas)
 			if err != nil {
-				fmt.Println(&user)
+				fmt.Println("error is ", err)
+			}
+			createuser := strings.Join([]string{"create user ", user, "@", host, ";"}, "'")
+			userinfo := strings.Join([]string{"update mysql.user set `authentication_string`=", pas, " where user=", user, " and host=", host, ";"}, "'")
+			grantQ := strings.Join([]string{"SHOW GRANTS FOR ", user, "@", host, ";"}, "'")
+
+			fmt.Println(createuser)
+			fmt.Println(userinfo)
+
+			// ierr := ioutil.WriteFile("user.sql", []byte(createuser), 0644)
+			// if ierr != nil {
+			// 	fmt.Println("error is: ", ierr)
+			// }
+			gRows, err := db.Query(grantQ)
+			if err != nil {
+				fmt.Printf("execute %v fail", grantQ)
+			}
+			for gRows.Next() {
+				err := gRows.Scan(&grant)
+				if err != nil {
+					fmt.Println("error is ", err)
+				}
+				fmt.Println(grant, ";")
 			}
 		}
-		fmt.Println("export called")
+
+		fmt.Println("Successfully introduce all users and permissions.")
 	},
 }
 
@@ -81,4 +105,11 @@ func init() {
 	exportCmd.Flags().StringVarP(&port, "dbport", "P", "4000", "Database Port")
 	// exportCmd.Flags().IntVarP(&port, "statusport", "s", 10080, "TiDB Status Port")
 
+}
+
+func addfile(context string) {
+	file, err := os.OpenFile("users.sql", os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("open file fail:", err)
+	}
 }
