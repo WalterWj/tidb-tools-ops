@@ -35,13 +35,8 @@ const (
 // exportCmd represents the export command
 var exportCmd = &cobra.Command{
 	Use:   "export",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "export your users for TiDB",
+	Long:  `export your users for TiDB`,
 	Run: func(cmd *cobra.Command, args []string) {
 		path := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
 		db, err := sql.Open("mysql", path)
@@ -62,13 +57,10 @@ to quickly create a Cobra application.`,
 			userinfo := strings.Join([]string{"update mysql.user set `authentication_string`=", pas, " where user=", user, " and host=", host, ";"}, "'")
 			grantQ := strings.Join([]string{"SHOW GRANTS FOR ", user, "@", host, ";"}, "'")
 
-			fmt.Println(createuser)
-			fmt.Println(userinfo)
-
-			// ierr := ioutil.WriteFile("user.sql", []byte(createuser), 0644)
-			// if ierr != nil {
-			// 	fmt.Println("error is: ", ierr)
-			// }
+			// fmt.Println(createuser)
+			// fmt.Println(userinfo)
+			addfile(createuser)
+			addfile(userinfo)
 			gRows, err := db.Query(grantQ)
 			if err != nil {
 				fmt.Printf("execute %v fail", grantQ)
@@ -78,8 +70,11 @@ to quickly create a Cobra application.`,
 				if err != nil {
 					fmt.Println("error is ", err)
 				}
-				fmt.Println(grant, ";")
+				grant = strings.Join([]string{grant, ";"}, "")
+				// fmt.Println(grant)
+				addfile(grant)
 			}
+			addfile("")
 		}
 
 		fmt.Println("Successfully introduce all users and permissions.")
@@ -88,16 +83,6 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(exportCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// exportCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// exportCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	exportCmd.Flags().StringVarP(&username, "dbusername", "u", "root", "Database user")
 	exportCmd.Flags().StringVarP(&host, "dbhost", "H", "127.0.0.1", "Database host")
@@ -108,8 +93,9 @@ func init() {
 }
 
 func addfile(context string) {
-	file, err := os.OpenFile("users.sql", os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		fmt.Println("open file fail:", err)
-	}
+	f, _ := os.OpenFile("users.sql", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	context = strings.Join([]string{context, "\n"}, "")
+	f.WriteString(context)
+	defer f.Close()
+	// fmt.Printf("Write %v sucessfully \n", context)
 }
