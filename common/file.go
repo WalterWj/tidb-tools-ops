@@ -16,5 +16,5 @@ func Addfile(name string, content string) {
 	content = strings.Join([]string{content, "\n"}, "")
 	f.WriteString(content)
 	defer f.Close()
-	// fmt.Printf("Write %v sucessfully \n", content)
+	fmt.Printf("Write %v sucessfully \n", name)
 }
