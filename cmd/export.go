@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	_ "github.com/Walterwj/tidb-tools-ops/common"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 )
@@ -59,8 +60,8 @@ var exportCmd = &cobra.Command{
 
 			// fmt.Println(createuser)
 			// fmt.Println(userinfo)
-			addfile(createuser)
-			addfile(userinfo)
+			Addfile(createuser)
+			Addfile(userinfo)
 			gRows, err := db.Query(grantQ)
 			if err != nil {
 				fmt.Printf("execute %v fail", grantQ)
@@ -72,9 +73,9 @@ var exportCmd = &cobra.Command{
 				}
 				grant = strings.Join([]string{grant, ";"}, "")
 				// fmt.Println(grant)
-				addfile(grant)
+				Addfile(grant)
 			}
-			addfile("")
+			Addfile("")
 		}
 
 		fmt.Println("Successfully introduce all users and permissions.")

@@ -5,10 +5,11 @@ import (
 	"strings"
 )
 
-func addfile(context string) {
+// Addfile
+func Addfile(content string) {
 	f, _ := os.OpenFile("users.sql", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-	context = strings.Join([]string{context, "\n"}, "")
-	f.WriteString(context)
+	content = strings.Join([]string{content, "\n"}, "")
+	f.WriteString(content)
 	defer f.Close()
-	// fmt.Printf("Write %v sucessfully \n", context)
+	// fmt.Printf("Write %v sucessfully \n", content)
 }
