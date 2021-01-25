@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"strings"
 
+	_ "github.com/Walterwj/tidb-tools-ops/common"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
-	_ "github.com/tidb-tools-ops/common/file"
 )
 
 var (
