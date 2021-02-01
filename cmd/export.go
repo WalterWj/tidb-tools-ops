@@ -58,8 +58,6 @@ var exportCmd = &cobra.Command{
 			userinfo := strings.Join([]string{"update mysql.user set `authentication_string`=", pas, " where user=", user, " and host=", host, ";"}, "'")
 			grantQ := strings.Join([]string{"SHOW GRANTS FOR ", user, "@", host, ";"}, "'")
 
-			// fmt.Println(createuser)
-			// fmt.Println(userinfo)
 			common.Addfile("users.sql", createuser)
 			common.Addfile("users.sql", userinfo)
 			gRows, err := db.Query(grantQ)
@@ -72,7 +70,7 @@ var exportCmd = &cobra.Command{
 					fmt.Println("error is ", err)
 				}
 				grant = strings.Join([]string{grant, ";"}, "")
-				// fmt.Println(grant)
+
 				common.Addfile("users.sql", grant)
 			}
 			common.Addfile("users.sql", "")
@@ -85,18 +83,9 @@ var exportCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(exportCmd)
 
-	exportCmd.Flags().StringVarP(&username, "dbusername", "u", "root", "Database user")
-	exportCmd.Flags().StringVarP(&host, "dbhost", "H", "127.0.0.1", "Database host")
-	exportCmd.Flags().StringVarP(&password, "dbpassword", "p", "123456", "Database passowrd")
-	exportCmd.Flags().StringVarP(&port, "dbport", "P", "4000", "Database Port")
-	// exportCmd.Flags().IntVarP(&port, "statusport", "s", 10080, "TiDB Status Port")
+	exportCmd.Flags().StringVarP(&username, "user", "u", "root", "Database user")
+	exportCmd.Flags().StringVarP(&host, "host", "H", "127.0.0.1", "Database host")
+	exportCmd.Flags().StringVarP(&password, "password", "p", "123456", "Database passowrd")
+	exportCmd.Flags().StringVarP(&port, "port", "P", "4000", "Database Port")
 
 }
-
-// func Addfile(context string) {
-// 	f, _ := os.OpenFile("users.sql", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-// 	context = strings.Join([]string{context, "\n"}, "")
-// 	f.WriteString(context)
-// 	defer f.Close()
-// 	// fmt.Printf("Write %v sucessfully \n", context)
-// }
