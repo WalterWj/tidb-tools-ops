@@ -20,7 +20,8 @@ import (
 	"strings"
 
 	"github.com/WalterWj/tidb-tools-ops/common"
-	_ "github.com/WalterWj/tidb-tools-ops/common"
+
+	// import mysql
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 )
