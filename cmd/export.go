@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -37,11 +36,8 @@ var exportCmd = &cobra.Command{
 	Short: "export your users for TiDB",
 	Long:  `export your users and passowrd for TiDB`,
 	Run: func(cmd *cobra.Command, args []string) {
-		path := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
-		db, err := sql.Open("mysql", path)
-		if err != nil {
-			fmt.Println("connect is fail")
-		}
+		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
+		db := mysqlConnect(dsn)
 		rows, err := db.Query(userQ)
 		if err != nil {
 			fmt.Printf("execute %v fail", userQ)

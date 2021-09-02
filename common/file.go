@@ -1,13 +1,12 @@
 package common
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
 
 func init() {
-	fmt.Println("file mould init funcation")
+	// fmt.Println("file mould init funcation")
 }
 
 // Addfile

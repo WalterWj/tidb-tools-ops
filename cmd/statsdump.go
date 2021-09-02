@@ -16,9 +16,11 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
 
 	// import common
-	_ "github.com/WalterWj/tidb-tools-ops/common"
+	"github.com/WalterWj/tidb-tools-ops/common"
 
 	"github.com/spf13/cobra"
 )
@@ -38,9 +40,25 @@ var statsdumpCmd = &cobra.Command{
 	Short: "Export statistics and table structures",
 	Long:  `Export statistics and table structures`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("statsdump called")
-		c := schemainfo()
-		print(c)
+		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
+		db := mysqlConnect(dsn)
+		res := common.GetTables(db, "'test'")
+		for _, tableName := range res {
+			showQ := fmt.Sprintf("show create table %s", tableName)
+			db.Exec(fmt.Sprintf("use %s;", dbname))
+			rows, err := db.Query(showQ)
+			ifErrLog(err)
+			for rows.Next() {
+				var t, Ct string
+				err := rows.Scan(&t, &Ct)
+				ifErrLog(err)
+				// fmt.Printf("%s;\n", Ct)
+				ctc := []byte(Ct)
+				err = ioutil.WriteFile(fmt.Sprintf("%s-%s.sql", dbname, tableName), ctc, 0644)
+				ifErrLog(err)
+			}
+			rows.Close()
+		}
 	},
 }
 

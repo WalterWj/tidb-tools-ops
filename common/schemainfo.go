@@ -6,11 +6,11 @@ import (
 )
 
 func init() {
-	fmt.Println("get schema information mould init funcation")
+	// fmt.Println("get schema information mould init funcation")
 }
 
 // Get table schema information
-func getTables(db *sql.DB, dbname string) map[int]string {
+func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
 	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", dbname)
 	rows, err := db.Query(tablesQ)
