@@ -30,3 +30,25 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 	}
 	return r
 }
+
+// get TiDB version
+func GetVersion(db *sql.DB) map[int]string {
+	var r = make(map[int]string)
+	const Query = "select tidb_version();"
+	rows, err := db.Query(Query)
+	if err != nil {
+		fmt.Printf("execute %v fail", Query)
+	}
+	defer rows.Close()
+	n := 0
+	for rows.Next() {
+		var t string
+		err := rows.Scan(&t)
+		if err != nil {
+			fmt.Printf("rows scan fail")
+		}
+		r[n] = t
+		n++
+	}
+	return r
+}

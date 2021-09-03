@@ -16,8 +16,9 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
+	"time"
 
 	// import common
 	"github.com/WalterWj/tidb-tools-ops/common"
@@ -43,6 +44,17 @@ var statsdumpCmd = &cobra.Command{
 		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
 		db := mysqlConnect(dsn)
 		res := common.GetTables(db, "'test'")
+		dir := strings.Join([]string{"stats-", dbname, "-", time.Now().Format("2006-01-02-15:04:05")}, "")
+		err := os.Mkdir(dir, os.ModePerm)
+		ifErrLog(err)
+		err = os.MkdirAll(fmt.Sprintf("%s/stats", dir), os.ModePerm)
+		ifErrLog(err)
+		// tidb version
+		vs := common.GetVersion(db)
+		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), `/*`)
+		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), vs[0])
+		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), `*/`)
+
 		for _, tableName := range res {
 			showQ := fmt.Sprintf("show create table %s", tableName)
 			db.Exec(fmt.Sprintf("use %s;", dbname))
@@ -52,10 +64,9 @@ var statsdumpCmd = &cobra.Command{
 				var t, Ct string
 				err := rows.Scan(&t, &Ct)
 				ifErrLog(err)
-				// fmt.Printf("%s;\n", Ct)
 				ctc := []byte(Ct)
-				err = ioutil.WriteFile(fmt.Sprintf("%s-%s.sql", dbname, tableName), ctc, 0644)
-				ifErrLog(err)
+				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), fmt.Sprintf("\n-- Table %s schema", tableName))
+				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), string(ctc))
 			}
 			rows.Close()
 		}
