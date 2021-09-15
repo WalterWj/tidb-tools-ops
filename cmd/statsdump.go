@@ -43,7 +43,6 @@ var statsdumpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
 		db := mysqlConnect(dsn)
-		res := common.GetTables(db, "'test'")
 		dir := strings.Join([]string{"stats-", dbname, "-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
 		ifErrLog(err)
@@ -55,20 +54,14 @@ var statsdumpCmd = &cobra.Command{
 		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), vs[0])
 		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), `*/`)
 
-		for _, tableName := range res {
-			showQ := fmt.Sprintf("show create table %s", tableName)
-			db.Exec(fmt.Sprintf("use %s;", dbname))
-			rows, err := db.Query(showQ)
-			ifErrLog(err)
-			for rows.Next() {
-				var t, Ct string
-				err := rows.Scan(&t, &Ct)
-				ifErrLog(err)
-				ctc := []byte(Ct)
+		tbn := common.GetTables(db, "'test'")
+		for _, tableName := range tbn {
+			tableMap := common.ParserTables(db, dbname, tableName)
+			tbc, suc := tableMap[tableName]
+			if suc {
 				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), fmt.Sprintf("\n-- Table %s schema", tableName))
-				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), string(ctc))
+				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), tbc+";")
 			}
-			rows.Close()
 		}
 	},
 }
@@ -76,15 +69,6 @@ var statsdumpCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(statsdumpCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// statsdumpCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// statsdumpCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	statsdumpCmd.Flags().StringVarP(&dbusername, "dbusername", "u", "root", "Database user")
 	statsdumpCmd.Flags().StringVarP(&dbname, "dbname", "d", "test", "Database name")
 	statsdumpCmd.Flags().StringVarP(&dbhost, "dbhost", "H", "127.0.0.1", "Database host")

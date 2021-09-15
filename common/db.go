@@ -9,7 +9,7 @@ func init() {
 	// fmt.Println("get schema information mould init funcation")
 }
 
-// Get table schema information
+// Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
 	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", dbname)
@@ -49,6 +49,26 @@ func GetVersion(db *sql.DB) map[int]string {
 		}
 		r[n] = t
 		n++
+	}
+	return r
+}
+
+// get table schema
+func ParserTables(db *sql.DB, dbname string, tablename string) map[string]string {
+	var r = make(map[string]string)
+	tablesQ := fmt.Sprintf("show create table `%v`.`%v`;", dbname, tablename)
+	rows, err := db.Query(tablesQ)
+	if err != nil {
+		fmt.Printf("execute %v fail", tablesQ)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t, ct string
+		err := rows.Scan(&t, &ct)
+		if err != nil {
+			fmt.Printf("rows scan fail")
+		}
+		r[t] = ct
 	}
 	return r
 }
