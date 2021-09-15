@@ -20,3 +20,4 @@ vendor/
 # dir
 bin/
 tmp/
+.vscode
