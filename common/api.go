@@ -11,7 +11,7 @@ func init() {
 }
 
 // parser table stats
-func ParserTs(StatusPort int, DbIp string, dbName string, tbName string) string {
+func ParserTs(DbIp string, StatusPort int, dbName string, tbName string) string {
 	Apipath := fmt.Sprintf("http://%s:%v/stats/dump/%s/%s", DbIp, StatusPort, dbName, tbName)
 	response, err := http.Get(Apipath)
 	if err != nil {

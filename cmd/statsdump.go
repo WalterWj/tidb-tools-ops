@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 
 var (
 	dbhost, dbname, dbusername, dbpassword string
-	dbport                                 int
+	dbport, dbStatusPort                   int
 )
 
 const (
@@ -46,22 +47,28 @@ var statsdumpCmd = &cobra.Command{
 		dir := strings.Join([]string{"stats-", dbname, "-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
 		ifErrLog(err)
-		err = os.MkdirAll(fmt.Sprintf("%s/stats", dir), os.ModePerm)
+		statsDir := filepath.Join(dir, "stats")
+		err = os.MkdirAll(statsDir, os.ModePerm)
 		ifErrLog(err)
+		schemaFile := filepath.Join(dir, "schema.sql")
 		// tidb version
 		vs := common.GetVersion(db)
-		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), `/*`)
-		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), vs[0])
-		common.Addfile(fmt.Sprintf("%s/schema.sql", dir), `*/`)
+		common.Addfile(schemaFile, `/*`)
+		common.Addfile(schemaFile, vs[0])
+		common.Addfile(schemaFile, `*/`)
 
 		tbn := common.GetTables(db, "'test'")
 		for _, tableName := range tbn {
 			tableMap := common.ParserTables(db, dbname, tableName)
 			tbc, suc := tableMap[tableName]
 			if suc {
-				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), fmt.Sprintf("\n-- Table %s schema", tableName))
-				common.Addfile(fmt.Sprintf("%s/schema.sql", dir), tbc+";")
+				common.Addfile(schemaFile, fmt.Sprintf("\n-- Table %s schema", tableName))
+				common.Addfile(schemaFile, tbc+";")
 			}
+			statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tableName)
+			statsFile := filepath.Join(statsDir, fmt.Sprintf("%s.%s.json", dbname, tableName))
+			common.Addfile(statsFile, statsContent)
+			common.Addfile(schemaFile, fmt.Sprintf("\nLOAD STATS '%s';", statsFile))
 		}
 	},
 }
@@ -74,5 +81,5 @@ func init() {
 	statsdumpCmd.Flags().StringVarP(&dbhost, "dbhost", "H", "127.0.0.1", "Database host")
 	statsdumpCmd.Flags().StringVarP(&dbpassword, "dbpassword", "p", "123456", "Database passowrd")
 	statsdumpCmd.Flags().IntVarP(&dbport, "dbport", "P", 4000, "Database Port")
-	statsdumpCmd.Flags().IntVarP(&dbport, "statusport", "s", 10080, "TiDB Status Port")
+	statsdumpCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
 }
