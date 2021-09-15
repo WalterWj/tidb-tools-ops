@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -10,11 +11,17 @@ func init() {
 }
 
 // parser table stats
-func ParserTs(StatusPort int, DbIp string, dbName string, tbName string) {
-	req, err := http.Get(fmt.Sprintf("http://%s:%v/stats/dump/%s/%s", DbIp, StatusPort, dbName, tbName))
+func ParserTs(StatusPort int, DbIp string, dbName string, tbName string) string {
+	Apipath := fmt.Sprintf("http://%s:%v/stats/dump/%s/%s", DbIp, StatusPort, dbName, tbName)
+	response, err := http.Get(Apipath)
 	if err != nil {
-		//
+		fmt.Printf("curl %s faild", Apipath)
 	}
-	defer req.Body.Close()
-	fmt.Println(req)
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	content := string(body)
+	return content
 }
