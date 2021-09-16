@@ -58,6 +58,7 @@ var statsdumpCmd = &cobra.Command{
 		common.Addfile(schemaFile, `*/`)
 
 		tbn := common.GetTables(db, "'test'")
+		dbn := common.ParserDb()
 		for _, tableName := range tbn {
 			tableMap := common.ParserTables(db, dbname, tableName)
 			tbc, suc := tableMap[tableName]
@@ -66,7 +67,7 @@ var statsdumpCmd = &cobra.Command{
 				common.Addfile(schemaFile, tbc+";")
 			}
 			statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tableName)
-			statsFile := filepath.Join(statsDir, fmt.Sprintf("%s.%s.json", dbname, tableName))
+			statsFile := filepath.Join("stats", fmt.Sprintf("%s.%s.json", dbname, tableName))
 			common.Addfile(statsFile, statsContent)
 			common.Addfile(schemaFile, fmt.Sprintf("\nLOAD STATS '%s';", statsFile))
 		}

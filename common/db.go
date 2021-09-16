@@ -72,3 +72,23 @@ func ParserTables(db *sql.DB, dbname string, tablename string) map[string]string
 	}
 	return r
 }
+
+// get database schema
+func ParserDb(db *sql.DB, dbname string) map[string]string {
+	var r = make(map[string]string)
+	DbQ := fmt.Sprintf("show create database if not exists `%v`;", dbname)
+	rows, err := db.Query(DbQ)
+	if err != nil {
+		fmt.Printf("execute %v fail", DbQ)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var d, cd string
+		err := rows.Scan(&d, &cd)
+		if err != nil {
+			fmt.Printf("rows scan fail")
+		}
+		r[d] = cd
+	}
+	return r
+}
