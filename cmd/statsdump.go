@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,15 +58,13 @@ var statsdumpCmd = &cobra.Command{
 		common.Addfile(schemaFile, vs[0])
 		common.Addfile(schemaFile, `*/`)
 
-		tbn := common.GetTables(db, "'test'")
-		dbn := common.ParserDb()
+		tbn := common.GetTables(db, strconv.Quote(dbname))
+		dbn := common.ParserDb(db, dbname)
+		common.Addfile(schemaFile, dbn)
 		for _, tableName := range tbn {
 			tableMap := common.ParserTables(db, dbname, tableName)
-			tbc, suc := tableMap[tableName]
-			if suc {
-				common.Addfile(schemaFile, fmt.Sprintf("\n-- Table %s schema", tableName))
-				common.Addfile(schemaFile, tbc+";")
-			}
+			common.Addfile(schemaFile, fmt.Sprintf("\n-- Table %s schema", tableName))
+			common.Addfile(schemaFile, tableMap+";")
 			statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tableName)
 			statsFile := filepath.Join("stats", fmt.Sprintf("%s.%s.json", dbname, tableName))
 			common.Addfile(statsFile, statsContent)

@@ -31,6 +31,28 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 	return r
 }
 
+// get db name,ignore 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql'
+func GetDb(db *sql.DB, dbname string) map[int]string {
+	var r = make(map[int]string)
+	tablesQ := "select distinct TABLE_SCHEMA from tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql');"
+	rows, err := db.Query(tablesQ)
+	if err != nil {
+		fmt.Printf("execute %v fail", tablesQ)
+	}
+	defer rows.Close()
+	n := 0
+	for rows.Next() {
+		var t string
+		err := rows.Scan(&t)
+		if err != nil {
+			fmt.Printf("rows scan fail")
+		}
+		r[n] = t
+		n++
+	}
+	return r
+}
+
 // get TiDB version
 func GetVersion(db *sql.DB) map[int]string {
 	var r = make(map[int]string)
@@ -54,7 +76,7 @@ func GetVersion(db *sql.DB) map[int]string {
 }
 
 // get table schema
-func ParserTables(db *sql.DB, dbname string, tablename string) map[string]string {
+func ParserTables(db *sql.DB, dbname string, tablename string) string {
 	var r = make(map[string]string)
 	tablesQ := fmt.Sprintf("show create table `%v`.`%v`;", dbname, tablename)
 	rows, err := db.Query(tablesQ)
@@ -70,11 +92,11 @@ func ParserTables(db *sql.DB, dbname string, tablename string) map[string]string
 		}
 		r[t] = ct
 	}
-	return r
+	return r[tablename]
 }
 
 // get database schema
-func ParserDb(db *sql.DB, dbname string) map[string]string {
+func ParserDb(db *sql.DB, dbname string) string {
 	var r = make(map[string]string)
 	DbQ := fmt.Sprintf("show create database if not exists `%v`;", dbname)
 	rows, err := db.Query(DbQ)
@@ -90,5 +112,5 @@ func ParserDb(db *sql.DB, dbname string) map[string]string {
 		}
 		r[d] = cd
 	}
-	return r
+	return r[dbname]
 }
