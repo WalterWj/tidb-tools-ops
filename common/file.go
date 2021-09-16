@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
@@ -11,7 +12,10 @@ func init() {
 
 // Addfile
 func Addfile(name string, content string) {
-	f, _ := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
 	content = strings.Join([]string{content, "\n"}, "")
 	f.WriteString(content)
 	defer f.Close()

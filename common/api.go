@@ -20,7 +20,7 @@ func ParserTs(DbIp string, StatusPort int, dbName string, tbName string) string 
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Printf(err.Error())
+		fmt.Println(err)
 	}
 	content := string(body)
 	return content
