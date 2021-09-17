@@ -32,7 +32,7 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 }
 
 // get db name,ignore 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql'
-func GetDb(db *sql.DB, dbname string) map[int]string {
+func GetAllDb(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
 	tablesQ := "select distinct TABLE_SCHEMA from tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql');"
 	rows, err := db.Query(tablesQ)

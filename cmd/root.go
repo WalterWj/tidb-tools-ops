@@ -17,6 +17,7 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -100,6 +101,6 @@ func mysqlConnect(dsn string) *sql.DB {
 
 func ifErrLog(err error) {
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }

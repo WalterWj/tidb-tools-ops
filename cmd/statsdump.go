@@ -43,9 +43,11 @@ var statsdumpCmd = &cobra.Command{
 	Short: "Export statistics and table structures",
 	Long:  `Export statistics and table structures`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// connect db
 		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
 		db := mysqlConnect(dsn)
-		dir := strings.Join([]string{"stats-", dbname, "-", time.Now().Format("2006-01-02-15:04:05")}, "")
+		// mkdir dir
+		dir := strings.Join([]string{"stats-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
 		ifErrLog(err)
 		statsDir := filepath.Join(dir, "stats")
