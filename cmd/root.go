@@ -15,9 +15,7 @@
 package cmd
 
 import (
-	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -27,10 +25,6 @@ import (
 )
 
 var cfgFile string
-
-var (
-	host, username, password, port string
-)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -88,19 +82,5 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-}
-
-func mysqlConnect(dsn string) *sql.DB {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return db
-}
-
-func ifErrLog(err error) {
-	if err != nil {
-		log.Fatal(err)
 	}
 }

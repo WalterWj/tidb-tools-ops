@@ -34,10 +34,6 @@ var (
 	dbport, dbStatusPort, mode                      int
 )
 
-const (
-	tablesQ = "show tables"
-)
-
 // statsdumpCmd represents the statsdump command
 var statsdumpCmd = &cobra.Command{
 	Use:   "statsdump",
@@ -45,15 +41,15 @@ var statsdumpCmd = &cobra.Command{
 	Long:  `Export statistics and table structures`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// connect db
-		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
-		db := mysqlConnect(dsn)
+		dsn := strings.Join([]string{dbusername, ":", dbpassword, "@tcp(", dbhost, ":", fmt.Sprint(dbport), ")/", "mysql?charset=utf8"}, "")
+		db := common.MysqlConnect(dsn)
 		// mkdir dir
 		dir := strings.Join([]string{"stats-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
-		ifErrLog(err)
+		common.IfErrLog(err)
 		statsDir := filepath.Join(dir, "stats")
 		err = os.MkdirAll(statsDir, os.ModePerm)
-		ifErrLog(err)
+		common.IfErrLog(err)
 		schemaFile := filepath.Join(dir, "schema.sql")
 		// tidb version
 		vs := common.GetVersion(db)
@@ -130,12 +126,12 @@ func wTableInfo(db *sql.DB, fileName string, dbName string, tbName string) {
 func init() {
 	rootCmd.AddCommand(statsdumpCmd)
 
-	statsdumpCmd.Flags().StringVarP(&dbusername, "dbusername", "u", "root", "Database user")
-	statsdumpCmd.Flags().StringVarP(&dbname, "dbname", "d", "", "Database name, eg: db1,db2,db3")
-	statsdumpCmd.Flags().StringVarP(&dbhost, "dbhost", "H", "127.0.0.1", "Database host")
-	statsdumpCmd.Flags().StringVarP(&dbpassword, "dbpassword", "p", "123456", "Database passowrd")
-	statsdumpCmd.Flags().StringVarP(&dbtable, "dbtable", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
-	statsdumpCmd.Flags().IntVarP(&dbport, "dbport", "P", 4000, "Database Port")
+	statsdumpCmd.Flags().StringVarP(&dbusername, "user", "u", "root", "Database user")
+	statsdumpCmd.Flags().StringVarP(&dbname, "database", "d", "", "Database name, eg: db1,db2,db3")
+	statsdumpCmd.Flags().StringVarP(&dbhost, "host", "H", "127.0.0.1", "Database host")
+	statsdumpCmd.Flags().StringVarP(&dbpassword, "password", "p", "123456", "Database passowrd")
+	statsdumpCmd.Flags().StringVarP(&dbtable, "tables", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
+	statsdumpCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
 	statsdumpCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
 	statsdumpCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database")
 }

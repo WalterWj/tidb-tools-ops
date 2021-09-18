@@ -9,6 +9,15 @@ func init() {
 	// fmt.Println("get schema information mould init funcation")
 }
 
+// db connect
+func MysqlConnect(dsn string) *sql.DB {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Printf("connect db fail. %s", err)
+	}
+	return db
+}
+
 // Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)

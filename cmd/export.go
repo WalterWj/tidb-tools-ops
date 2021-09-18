@@ -26,6 +26,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	host, username, password string
+	port                     int
+)
+
 const (
 	userQ = "select user,host,authentication_string from user;"
 )
@@ -36,8 +41,8 @@ var exportCmd = &cobra.Command{
 	Short: "export your users for TiDB",
 	Long:  `export your users and passowrd for TiDB`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", "mysql?charset=utf8"}, "")
-		db := mysqlConnect(dsn)
+		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", fmt.Sprint(port), ")/", "mysql?charset=utf8"}, "")
+		db := common.MysqlConnect(dsn)
 		rows, err := db.Query(userQ)
 		if err != nil {
 			fmt.Printf("execute %v fail", userQ)
@@ -80,6 +85,6 @@ func init() {
 	exportCmd.Flags().StringVarP(&username, "user", "u", "root", "Database user")
 	exportCmd.Flags().StringVarP(&host, "host", "H", "127.0.0.1", "Database host")
 	exportCmd.Flags().StringVarP(&password, "password", "p", "123456", "Database passowrd")
-	exportCmd.Flags().StringVarP(&port, "port", "P", "4000", "Database Port")
+	exportCmd.Flags().IntVarP(&port, "port", "P", 4000, "Database Port")
 
 }
