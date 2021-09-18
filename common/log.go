@@ -15,6 +15,6 @@ func IfErrLog(err error) {
 
 // error print
 func IfErrPrint(err string) {
-	ct := time.Now().Format("2006-01-02 15:04:05")
-	fmt.Printf("%s ERROR: %s", ct, err)
+	ct := time.Now().Format("2006-01-02 15:04:05.000")
+	fmt.Printf("%s ERROR: %s\n", ct, err)
 }

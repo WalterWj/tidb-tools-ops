@@ -104,14 +104,14 @@ var statsdumpCmd = &cobra.Command{
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
 					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
-					fmt.Printf("Get stats for %s.%s is OK~\n", dbTmp, tb)
+					fmt.Printf("Get %s.%s stats Succeeded ~\n", dbTmp, tb)
 				}
 			}
 		}
 		// get time
 		et := time.Now()
-		fmt.Println("Get stats Sucessfull!")
-		fmt.Printf("Cost time is %s\n", et.Sub(st))
+		fmt.Println("Get All stats Succeeded!")
+		fmt.Printf("Cost time is: %s\n", et.Sub(st))
 	},
 }
 
