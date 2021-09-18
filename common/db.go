@@ -31,10 +31,22 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 	return r
 }
 
+// get db sql
+func getDbSql(mode string) string {
+	if len(mode) == 0 {
+		tablesQ := `select distinct TABLE_SCHEMA from tables where TABLE_SCHEMA 
+		not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql');`
+		return tablesQ
+	} else {
+		tablesQ := `select distinct TABLE_SCHEMA from tables`
+		return tablesQ
+	}
+}
+
 // get db name,ignore 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql'
-func GetAllDb(db *sql.DB, dbname string) map[int]string {
+func getAllDb(db *sql.DB, dbname string, mode string) map[int]string {
 	var r = make(map[int]string)
-	tablesQ := "select distinct TABLE_SCHEMA from tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql');"
+	tablesQ := getDbSql(mode)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail", tablesQ)
