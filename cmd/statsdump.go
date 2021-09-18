@@ -74,7 +74,7 @@ var statsdumpCmd = &cobra.Command{
 					for _, tableName := range tbn {
 						wTableInfo(db, schemaFile, dbTmp, tableName)
 						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
-						fmt.Printf("Get %s.%s stats Succeeded ~\n", dbTmp, tableName)
+						fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tableName)
 					}
 				}
 			} else {
@@ -88,7 +88,7 @@ var statsdumpCmd = &cobra.Command{
 						// write table info
 						wTableInfo(db, schemaFile, dbTmp, tb)
 						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
-						fmt.Printf("Get %s.%s stats Succeeded ~\n", dbTmp, tb)
+						fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
 					}
 				}
 			}
@@ -104,7 +104,7 @@ var statsdumpCmd = &cobra.Command{
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
 					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
-					fmt.Printf("Get %s.%s stats Succeeded ~\n", dbTmp, tb)
+					fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
 				}
 			}
 		}
