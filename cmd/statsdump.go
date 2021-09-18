@@ -99,7 +99,7 @@ var statsdumpCmd = &cobra.Command{
 				// write db info
 				wDbInfo(db, schemaFile, dbName)
 				// tablme name
-				tbName := common.GetTables(db, dbName)
+				tbName := common.GetTables(db, strconv.Quote(dbName))
 				for _, tb := range tbName {
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
