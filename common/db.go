@@ -33,7 +33,7 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 		err := rows.Scan(&t)
 		if err != nil {
 			fmt.Printf("rows scan fail\n")
-			fmt.Println(tablesQ)
+			IfErrPrint(tablesQ)
 		}
 		r[n] = t
 		n++
@@ -69,7 +69,7 @@ func GetAllDb(db *sql.DB, mode int) map[int]string {
 		var t string
 		err := rows.Scan(&t)
 		if err != nil {
-			fmt.Printf("rows scan fail\n")
+			IfErrPrint("rows scan fail\n")
 		}
 		r[n] = t
 		n++
@@ -91,7 +91,7 @@ func GetVersion(db *sql.DB) map[int]string {
 		var t string
 		err := rows.Scan(&t)
 		if err != nil {
-			fmt.Printf("GetVersion, rows scan fail\n")
+			IfErrPrint("GetVersion, rows scan fail\n")
 		}
 		r[n] = t
 		n++
@@ -113,7 +113,7 @@ func ParserTables(db *sql.DB, dbname string, tablename string) string {
 		err := rows.Scan(&t, &ct)
 		if err != nil {
 			fmt.Printf("ParserTables, rows scan fail\n")
-			fmt.Println(tablesQ)
+			IfErrPrint(tablesQ)
 		}
 		r[t] = ct
 	}
@@ -134,7 +134,7 @@ func ParserDb(db *sql.DB, dbname string) string {
 		err := rows.Scan(&d, &cd)
 		if err != nil {
 			fmt.Printf("ParserDb, rows scan fail\n")
-			fmt.Println(DbQ)
+			IfErrPrint(DbQ)
 		}
 		r[d] = cd
 	}
