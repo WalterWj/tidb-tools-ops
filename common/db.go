@@ -24,7 +24,7 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", dbname)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
-		fmt.Printf("execute %v fail", tablesQ)
+		fmt.Printf("execute %v fail\n", tablesQ)
 	}
 	defer rows.Close()
 	n := 0
@@ -32,7 +32,8 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 		var t string
 		err := rows.Scan(&t)
 		if err != nil {
-			fmt.Printf("rows scan fail")
+			fmt.Printf("rows scan fail, Error: %s\n", err)
+			fmt.Println(tablesQ)
 		}
 		r[n] = t
 		n++
@@ -60,7 +61,7 @@ func GetAllDb(db *sql.DB, mode int) map[int]string {
 	tablesQ := GetDbSql(mode)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
-		fmt.Printf("execute %v fail", tablesQ)
+		fmt.Printf("execute %v fail\n", tablesQ)
 	}
 	defer rows.Close()
 	n := 0
@@ -68,7 +69,7 @@ func GetAllDb(db *sql.DB, mode int) map[int]string {
 		var t string
 		err := rows.Scan(&t)
 		if err != nil {
-			fmt.Printf("rows scan fail")
+			fmt.Printf("rows scan fail, Error: %s\n", err)
 		}
 		r[n] = t
 		n++
@@ -82,7 +83,7 @@ func GetVersion(db *sql.DB) map[int]string {
 	const Query = "select tidb_version();"
 	rows, err := db.Query(Query)
 	if err != nil {
-		fmt.Printf("execute %v fail", Query)
+		fmt.Printf("execute %v fail\n", Query)
 	}
 	defer rows.Close()
 	n := 0
@@ -90,7 +91,7 @@ func GetVersion(db *sql.DB) map[int]string {
 		var t string
 		err := rows.Scan(&t)
 		if err != nil {
-			fmt.Printf("rows scan fail")
+			fmt.Printf("GetVersion, rows scan fail, Error: %s\n", err)
 		}
 		r[n] = t
 		n++
@@ -104,14 +105,15 @@ func ParserTables(db *sql.DB, dbname string, tablename string) string {
 	tablesQ := fmt.Sprintf("show create table `%v`.`%v`;", dbname, tablename)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
-		fmt.Printf("execute %v fail", tablesQ)
+		fmt.Printf("execute %v fail\n", tablesQ)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var t, ct string
 		err := rows.Scan(&t, &ct)
 		if err != nil {
-			fmt.Printf("rows scan fail")
+			fmt.Printf("ParserTables, rows scan fail, Error: %s\n", err)
+			fmt.Println(tablesQ)
 		}
 		r[t] = ct
 	}
@@ -124,14 +126,15 @@ func ParserDb(db *sql.DB, dbname string) string {
 	DbQ := fmt.Sprintf("show create database if not exists `%v`;", dbname)
 	rows, err := db.Query(DbQ)
 	if err != nil {
-		fmt.Printf("execute %v fail", DbQ)
+		fmt.Printf("execute %v fail\n", DbQ)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var d, cd string
 		err := rows.Scan(&d, &cd)
 		if err != nil {
-			fmt.Printf("rows scan fail")
+			fmt.Printf("ParserDb, rows scan fail, Error: %s\n", err)
+			fmt.Println(DbQ)
 		}
 		r[d] = cd
 	}

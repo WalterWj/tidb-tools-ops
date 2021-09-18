@@ -40,6 +40,8 @@ var statsdumpCmd = &cobra.Command{
 	Short: "Export statistics and table structures",
 	Long:  `Export statistics and table structures`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// get time
+		st := time.Now()
 		// connect db
 		dsn := strings.Join([]string{dbusername, ":", dbpassword, "@tcp(", dbhost, ":", fmt.Sprint(dbport), ")/", "mysql?charset=utf8"}, "")
 		db := common.MysqlConnect(dsn)
@@ -72,6 +74,7 @@ var statsdumpCmd = &cobra.Command{
 					for _, tableName := range tbn {
 						wTableInfo(db, schemaFile, dbTmp, tableName)
 						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
+						fmt.Printf("Get stats for %s.%s is OK~\n", dbTmp, tableName)
 					}
 				}
 			} else {
@@ -85,6 +88,7 @@ var statsdumpCmd = &cobra.Command{
 						// write table info
 						wTableInfo(db, schemaFile, dbTmp, tb)
 						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
+						fmt.Printf("Get stats for %s.%s is OK~\n", dbTmp, tb)
 					}
 				}
 			}
@@ -100,10 +104,14 @@ var statsdumpCmd = &cobra.Command{
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
 					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
+					fmt.Printf("Get stats for %s.%s is OK~\n", dbTmp, tb)
 				}
 			}
 		}
-
+		// get time
+		et := time.Now()
+		fmt.Println("Get stats Sucessfull!")
+		fmt.Printf("Cost time is %s\n", et.Sub(st))
 	},
 }
 
