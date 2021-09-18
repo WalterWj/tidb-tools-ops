@@ -47,9 +47,11 @@ var statsdumpCmd = &cobra.Command{
 		dir := strings.Join([]string{"stats-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
 		common.IfErrLog(err)
+		// mkdir stats dir
 		statsDir := filepath.Join(dir, "stats")
 		err = os.MkdirAll(statsDir, os.ModePerm)
 		common.IfErrLog(err)
+		// mkdir schema file
 		schemaFile := filepath.Join(dir, "schema.sql")
 		// tidb version
 		vs := common.GetVersion(db)
@@ -65,10 +67,11 @@ var statsdumpCmd = &cobra.Command{
 					// Write db info
 					wDbInfo(db, schemaFile, dbTmp)
 					// table name
-					tbn := common.GetTables(db, strconv.Quote(dbname))
+					tbn := common.GetTables(db, strconv.Quote(dbTmp))
 					// Write tables information
 					for _, tableName := range tbn {
-						wTableInfo(db, schemaFile, dbname, tableName)
+						wTableInfo(db, schemaFile, dbTmp, tableName)
+						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
 					}
 				}
 			} else {
@@ -81,6 +84,7 @@ var statsdumpCmd = &cobra.Command{
 					for _, tb := range tbTmp {
 						// write table info
 						wTableInfo(db, schemaFile, dbTmp, tb)
+						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
 					}
 				}
 			}
@@ -95,6 +99,7 @@ var statsdumpCmd = &cobra.Command{
 				for _, tb := range tbName {
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
+					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
 				}
 			}
 		}
@@ -112,15 +117,18 @@ func wDbInfo(db *sql.DB, fileName string, dbName string) {
 
 // Write table information to file
 func wTableInfo(db *sql.DB, fileName string, dbName string, tbName string) {
-	tableMap := common.ParserTables(db, dbname, tbName)
+	tableMap := common.ParserTables(db, dbName, tbName)
 	// tables
 	common.Addfile(fileName, fmt.Sprintf("\n-- Table %s schema", tbName))
 	common.Addfile(fileName, tableMap+";")
+	common.Addfile(fileName, fmt.Sprintf("\nLOAD STATS 'stats/%s.%s.json;'", dbName, tbName))
+}
+
+func wStatsInfo(fileName string, dbHost string, dbStatusPort int, dbName string, tbName string) {
 	// stats
-	statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tbName)
-	statsFile := filepath.Join(fileName, "stats", fmt.Sprintf("%s.%s.json", dbname, tbName))
+	statsContent := common.ParserTs(dbHost, dbStatusPort, dbName, tbName)
+	statsFile := filepath.Join(fileName, fmt.Sprintf("%s.%s.json", dbName, tbName))
 	common.Addfile(statsFile, statsContent)
-	common.Addfile(tbName, fmt.Sprintf("\nLOAD STATS '%s';", statsFile))
 }
 
 func init() {
