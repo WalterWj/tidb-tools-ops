@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -14,7 +15,11 @@ func IfErrLog(err error) {
 }
 
 // error print
-func IfErrPrint(err string) {
-	ct := time.Now().Format("2006-01-02 15:04:05.000")
-	fmt.Printf("%s ERROR: %s\n", ct, err)
+func IfErrPrint(errInfo string) {
+	i, err := strconv.ParseInt("1489582166", 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	ct := time.Unix(i, 0)
+	fmt.Printf("%s ERROR: %s\n", ct, errInfo)
 }
