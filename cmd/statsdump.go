@@ -104,7 +104,7 @@ var statsdumpCmd = &cobra.Command{
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)
 					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
-					fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
+					fmt.Printf("Get %s.%s stats Succeeded~\n", dbName, tb)
 				}
 			}
 		}
