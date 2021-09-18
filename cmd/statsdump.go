@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,8 +30,8 @@ import (
 )
 
 var (
-	dbhost, dbname, dbusername, dbpassword string
-	dbport, dbStatusPort                   int
+	dbhost, dbname, dbusername, dbpassword, dbtable string
+	dbport, dbStatusPort, mode                      int
 )
 
 const (
@@ -59,35 +60,82 @@ var statsdumpCmd = &cobra.Command{
 		common.Addfile(schemaFile, `/*`)
 		common.Addfile(schemaFile, vs[0])
 		common.Addfile(schemaFile, `*/`)
-		// table name
-		tbn := common.GetTables(db, strconv.Quote(dbname))
-		dbn := common.ParserDb(db, dbname)
-		// db information
-		common.Addfile(schemaFile, fmt.Sprintf("-- DB %s info", dbname))
-		common.Addfile(schemaFile, dbn)
-		common.Addfile(schemaFile, fmt.Sprintf("use %s;", dbname))
-		// tables information
-		for _, tableName := range tbn {
-			tableMap := common.ParserTables(db, dbname, tableName)
-			// tables
-			common.Addfile(schemaFile, fmt.Sprintf("\n-- Table %s schema", tableName))
-			common.Addfile(schemaFile, tableMap+";")
-			// stats
-			statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tableName)
-			statsFile := filepath.Join(dir, "stats", fmt.Sprintf("%s.%s.json", dbname, tableName))
-			common.Addfile(statsFile, statsContent)
-			common.Addfile(schemaFile, fmt.Sprintf("\nLOAD STATS '%s';", statsFile))
+		// parser args
+		if len(dbname) == 0 {
+			if len(dbtable) == 0 {
+				// Get all
+				dblist := common.GetAllDb(db, mode)
+				for _, dbTmp := range dblist {
+					// Write db info
+					wDbInfo(db, schemaFile, dbTmp)
+					// table name
+					tbn := common.GetTables(db, strconv.Quote(dbname))
+					// Write tables information
+					for _, tableName := range tbn {
+						wTableInfo(db, schemaFile, dbname, tableName)
+					}
+				}
+			} else {
+				// get tables
+				tablelist := common.ParserTbArgs(dbtable)
+				for dbTmp, tbTmp := range tablelist {
+					// write db info
+					wDbInfo(db, schemaFile, dbTmp)
+					// table name
+					for _, tb := range tbTmp {
+						// write table info
+						wTableInfo(db, schemaFile, dbTmp, tb)
+					}
+				}
+			}
+		} else {
+			// get databases
+			dbTmp := common.ParserDbArgs(dbname)
+			for _, dbName := range dbTmp {
+				// write db info
+				wDbInfo(db, schemaFile, dbName)
+				// tablme name
+				tbName := common.GetTables(db, dbName)
+				for _, tb := range tbName {
+					// write table info
+					wTableInfo(db, schemaFile, dbName, tb)
+				}
+			}
 		}
+
 	},
+}
+
+func wDbInfo(db *sql.DB, fileName string, dbName string) {
+	// db information
+	common.Addfile(fileName, fmt.Sprintf("-- DB %s info", dbName))
+	dbn := common.ParserDb(db, dbName)
+	common.Addfile(fileName, dbn)
+	common.Addfile(fileName, fmt.Sprintf("use %s;", dbName))
+}
+
+// Write table information to file
+func wTableInfo(db *sql.DB, fileName string, dbName string, tbName string) {
+	tableMap := common.ParserTables(db, dbname, tbName)
+	// tables
+	common.Addfile(fileName, fmt.Sprintf("\n-- Table %s schema", tbName))
+	common.Addfile(fileName, tableMap+";")
+	// stats
+	statsContent := common.ParserTs(dbhost, dbStatusPort, dbname, tbName)
+	statsFile := filepath.Join(fileName, "stats", fmt.Sprintf("%s.%s.json", dbname, tbName))
+	common.Addfile(statsFile, statsContent)
+	common.Addfile(tbName, fmt.Sprintf("\nLOAD STATS '%s';", statsFile))
 }
 
 func init() {
 	rootCmd.AddCommand(statsdumpCmd)
 
 	statsdumpCmd.Flags().StringVarP(&dbusername, "dbusername", "u", "root", "Database user")
-	statsdumpCmd.Flags().StringVarP(&dbname, "dbname", "d", "test", "Database name")
+	statsdumpCmd.Flags().StringVarP(&dbname, "dbname", "d", "", "Database name, eg: db1,db2,db3")
 	statsdumpCmd.Flags().StringVarP(&dbhost, "dbhost", "H", "127.0.0.1", "Database host")
 	statsdumpCmd.Flags().StringVarP(&dbpassword, "dbpassword", "p", "123456", "Database passowrd")
+	statsdumpCmd.Flags().StringVarP(&dbtable, "dbtable", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
 	statsdumpCmd.Flags().IntVarP(&dbport, "dbport", "P", 4000, "Database Port")
 	statsdumpCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
+	statsdumpCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database")
 }
