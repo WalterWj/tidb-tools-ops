@@ -21,7 +21,7 @@ func MysqlConnect(dsn string) *sql.DB {
 // Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
-	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", dbname)
+	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';;", dbname)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail\n", tablesQ)
@@ -48,7 +48,7 @@ func GetDbSql(mode int) string {
 		not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql');`
 		return tablesQ
 	} else if mode == 1 {
-		tablesQ := `select distinct TABLE_SCHEMA from INFORMATION_SCHEMA.tables`
+		tablesQ := `select distinct TABLE_SCHEMA from INFORMATION_SCHEMA.tables;`
 		return tablesQ
 	} else {
 		panic("Please input 0/1 for mode")
