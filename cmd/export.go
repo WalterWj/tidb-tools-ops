@@ -33,6 +33,7 @@ var (
 
 const (
 	userQ = "select user,host,authentication_string from user;"
+	// userQ = "select user,host,password from user;"  v2.1
 )
 
 // exportCmd represents the export command
