@@ -98,3 +98,9 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
+
+// other var
+var (
+	dbhost, dbname, dbusername, dbpassword, dbtable string
+	dbport, dbStatusPort, mode, thread              int
+)

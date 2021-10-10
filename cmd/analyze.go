@@ -42,4 +42,12 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// analyzeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	analyzeCmd.Flags().StringVarP(&dbusername, "user", "u", "root", "Database user")
+	analyzeCmd.Flags().StringVarP(&dbname, "database", "d", "", "Database name, eg: db1,db2,db3")
+	analyzeCmd.Flags().StringVarP(&dbhost, "host", "H", "127.0.0.1", "Database host")
+	analyzeCmd.Flags().StringVarP(&dbpassword, "password", "p", "123456", "Database passowrd")
+	analyzeCmd.Flags().StringVarP(&dbtable, "tables", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
+	analyzeCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
+	// analyzeCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
+	analyzeCmd.Flags().IntVarP(&thread, "mode", "m", 0, "Ignore system database")
 }

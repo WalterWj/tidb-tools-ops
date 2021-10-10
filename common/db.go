@@ -21,7 +21,7 @@ func MysqlConnect(dsn string) *sql.DB {
 // Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
-	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';;", dbname)
+	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", dbname)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail\n", tablesQ)

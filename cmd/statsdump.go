@@ -29,11 +29,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	dbhost, dbname, dbusername, dbpassword, dbtable string
-	dbport, dbStatusPort, mode                      int
-)
-
 // statsdumpCmd represents the statsdump command
 var statsdumpCmd = &cobra.Command{
 	Use:   "statsdump",
