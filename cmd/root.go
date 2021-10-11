@@ -101,6 +101,10 @@ func initConfig() {
 
 // other var
 var (
+	// statusdump & analyze
 	dbhost, dbname, dbusername, dbpassword, dbtable string
 	dbport, dbStatusPort, mode, thread              int
+	// export
+	host, username, password string
+	port                     int
 )

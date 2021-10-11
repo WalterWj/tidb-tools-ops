@@ -26,11 +26,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	host, username, password string
-	port                     int
-)
-
 const (
 	userQ = "select user,host,authentication_string from user;"
 	// userQ = "select user,host,password from user;"  v2.1
