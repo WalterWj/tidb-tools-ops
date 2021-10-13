@@ -56,6 +56,7 @@ var statsdumpCmd = &cobra.Command{
 		common.Addfile(schemaFile, `*/`)
 		// parser args
 		if len(dbname) == 0 {
+			// args database is null, args tables is null:
 			if len(dbtable) == 0 {
 				// Get all
 				dblist := common.GetAllDb(db, mode)
@@ -71,6 +72,7 @@ var statsdumpCmd = &cobra.Command{
 						fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tableName)
 					}
 				}
+				// args database is null, tables is not null:
 			} else {
 				// get tables
 				tablelist := common.ParserTbArgs(dbtable)
@@ -86,6 +88,7 @@ var statsdumpCmd = &cobra.Command{
 					}
 				}
 			}
+			// args database is not null:
 		} else {
 			// get databases
 			dbTmp := common.ParserDbArgs(dbname)
@@ -102,9 +105,10 @@ var statsdumpCmd = &cobra.Command{
 				}
 			}
 		}
-		// get time
+		// get end time
 		et := time.Now()
 		fmt.Println("Get All stats Succeeded!")
+		// total cost time
 		fmt.Printf("Cost time is: %s\n", et.Sub(st))
 	},
 }
