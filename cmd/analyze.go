@@ -48,6 +48,6 @@ func init() {
 	analyzeCmd.Flags().StringVarP(&dbpassword, "password", "p", "123456", "Database passowrd")
 	analyzeCmd.Flags().StringVarP(&dbtable, "tables", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
 	analyzeCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
-	// analyzeCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
-	analyzeCmd.Flags().IntVarP(&thread, "mode", "m", 0, "Ignore system database")
+	analyzeCmd.Flags().IntVarP(&thread, "thread", "T", 4, "Number of threads executing analyze")
+	analyzeCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database")
 }

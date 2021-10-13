@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -64,7 +63,7 @@ var statsdumpCmd = &cobra.Command{
 					// Write db info
 					wDbInfo(db, schemaFile, dbTmp)
 					// table name
-					tbn := common.GetTables(db, strconv.Quote(dbTmp))
+					tbn := common.GetTables(db, dbTmp)
 					// Write tables information
 					for _, tableName := range tbn {
 						wTableInfo(db, schemaFile, dbTmp, tableName)
@@ -94,7 +93,7 @@ var statsdumpCmd = &cobra.Command{
 				// write db info
 				wDbInfo(db, schemaFile, dbName)
 				// tablme name
-				tbName := common.GetTables(db, strconv.Quote(dbName))
+				tbName := common.GetTables(db, dbName)
 				for _, tb := range tbName {
 					// write table info
 					wTableInfo(db, schemaFile, dbName, tb)

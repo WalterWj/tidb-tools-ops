@@ -3,6 +3,7 @@ package common
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 func init() {
@@ -15,13 +16,17 @@ func MysqlConnect(dsn string) *sql.DB {
 	if err != nil {
 		fmt.Printf("connect db fail. %s", err)
 	}
+	err = db.Ping()
+	if err != nil {
+		IfErrPrintE("Connect MySQL fail~")
+	}
 	return db
 }
 
 // Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
-	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", dbname)
+	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", strconv.Quote(dbname))
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail\n", tablesQ)
@@ -104,7 +109,7 @@ func GetVersion(db *sql.DB) map[int]string {
 // get table schema
 func ParserTables(db *sql.DB, dbname string, tablename string) string {
 	var r = make(map[string]string)
-	tablesQ := fmt.Sprintf("show create table1 `%v`.`%v`;", dbname, tablename)
+	tablesQ := fmt.Sprintf("show create table `%v`.`%v`;", dbname, tablename)
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail\n", tablesQ)
