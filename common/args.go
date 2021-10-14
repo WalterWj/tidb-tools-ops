@@ -27,3 +27,12 @@ func ParserTbArgs(tbargs string) map[string][]string {
 	}
 	return tableMap
 }
+
+// map[int]string to []string
+func MapToArryString(maplist map[int]string) []string {
+	var arryString []string
+	for _, _string := range maplist {
+		arryString = append(arryString, _string)
+	}
+	return arryString
+}
