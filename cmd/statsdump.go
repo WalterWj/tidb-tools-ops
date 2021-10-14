@@ -36,75 +36,117 @@ var statsdumpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// get start time
 		st := time.Now()
-		// connect db
-		dsn := strings.Join([]string{dbusername, ":", dbpassword, "@tcp(", dbhost, ":", fmt.Sprint(dbport), ")/", "mysql?charset=utf8"}, "")
-		db := common.MysqlConnect(dsn)
+
 		// mkdir dir
 		dir := strings.Join([]string{"stats-", time.Now().Format("2006-01-02-15:04:05")}, "")
 		err := os.Mkdir(dir, os.ModePerm)
 		common.IfErrLog(err)
+
 		// mkdir stats dir
 		statsDir := filepath.Join(dir, "stats")
 		err = os.MkdirAll(statsDir, os.ModePerm)
 		common.IfErrLog(err)
+
 		// mkdir schema file
 		schemaFile := filepath.Join(dir, "schema.sql")
+
+		// connect db
+		dsn := strings.Join([]string{dbusername, ":", dbpassword, "@tcp(", dbhost, ":", fmt.Sprint(dbport), ")/", "mysql?charset=utf8"}, "")
+		db := common.MysqlConnect(dsn)
+
 		// tidb version
 		vs := common.GetVersion(db)
 		common.Addfile(schemaFile, `/*`)
 		common.Addfile(schemaFile, vs[0])
 		common.Addfile(schemaFile, `*/`)
-		// parser args
+
+		// table list
+		var tableList = make(map[string][]string)
+
+		// parser args, make db & table: tableList = map[string][]string
 		if len(dbname) == 0 {
 			// args database is null, args tables is null:
 			if len(dbtable) == 0 {
 				// Get all
 				dblist := common.GetAllDb(db, mode)
 				for _, dbTmp := range dblist {
-					// Write db info
-					wDbInfo(db, schemaFile, dbTmp)
-					// table name
-					tbn := common.GetTables(db, dbTmp)
-					// Write tables information
-					for _, tableName := range tbn {
-						wTableInfo(db, schemaFile, dbTmp, tableName)
-						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
-						fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tableName)
-					}
+					// get all database and tables:
+					tableList[dbTmp] = common.MapToArryString(common.GetTables(db, dbTmp))
 				}
-				// args database is null, tables is not null:
 			} else {
+				// args: database is null, tables is not null:
 				// get tables
-				tablelist := common.ParserTbArgs(dbtable)
-				for dbTmp, tbTmp := range tablelist {
-					// write db info
-					wDbInfo(db, schemaFile, dbTmp)
-					// table name
-					for _, tb := range tbTmp {
-						// write table info
-						wTableInfo(db, schemaFile, dbTmp, tb)
-						wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
-						fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
-					}
-				}
+				tableList = common.ParserTbArgs(dbtable)
 			}
-			// args database is not null:
 		} else {
+			// args database is not null:
 			// get databases
-			dbTmp := common.ParserDbArgs(dbname)
-			for _, dbName := range dbTmp {
-				// write db info
-				wDbInfo(db, schemaFile, dbName)
-				// tablme name
-				tbName := common.GetTables(db, dbName)
-				for _, tb := range tbName {
-					// write table info
-					wTableInfo(db, schemaFile, dbName, tb)
-					wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
-					fmt.Printf("Get %s.%s stats Succeeded~\n", dbName, tb)
-				}
+			dblist := common.ParserDbArgs(dbname)
+			for _, dbTmp := range dblist {
+				tableList[dbTmp] = common.MapToArryString(common.GetTables(db, dbTmp))
 			}
 		}
+		for _db, _tbname := range tableList {
+			for _, _tb := range _tbname {
+				wTableInfo(db, schemaFile, _db, _tb)
+				wStatsInfo(statsDir, dbhost, dbStatusPort, _db, _tb)
+				fmt.Printf("Get %s.%s stats Succeeded~\n", _db, _tb)
+			}
+		}
+
+		// if len(dbname) == 0 {
+		// 	// args database is null, args tables is null:
+		// 	if len(dbtable) == 0 {
+		// 		// Get all
+		// 		dblist := common.GetAllDb(db, mode)
+		// 		for _, dbTmp := range dblist {
+		// 			// Write db info
+		// 			wDbInfo(db, schemaFile, dbTmp)
+		// 			// table name
+		// 			tbn := common.GetTables(db, dbTmp)
+		// 			// Write tables information
+		// 			for _, tableName := range tbn {
+		// 				wTableInfo(db, schemaFile, dbTmp, tableName)
+		// 				wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
+		// 				fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tableName)
+		// 			}
+		// 		}
+		// 		// args database is null, tables is not null:
+		// 	} else {
+		// 		// get tables
+		// 		tablelist := common.ParserTbArgs(dbtable)
+		// 		for dbTmp, tbTmp := range tablelist {
+		// 			// write db info
+		// 			wDbInfo(db, schemaFile, dbTmp)
+		// 			// table name
+		// 			for _, tb := range tbTmp {
+		// 				// write table info
+		// 				wTableInfo(db, schemaFile, dbTmp, tb)
+		// 				wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
+		// 				fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
+		// 			}
+		// 		}
+		// 	}
+		// 	// args database is not null:
+		// } else {
+		// 	// get databases
+		// 	dbTmp := common.ParserDbArgs(dbname)
+		// 	for _, dbName := range dbTmp {
+		// 		// write db info
+		// 		wDbInfo(db, schemaFile, dbName)
+		// 		// tablme name
+		// 		tbName := common.GetTables(db, dbName)
+		// 		for _, tb := range tbName {
+		// 			// write table info
+		// 			wTableInfo(db, schemaFile, dbName, tb)
+		// 			wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
+		// 			fmt.Printf("Get %s.%s stats Succeeded~\n", dbName, tb)
+		// 		}
+		// 	}
+		// }
+
+		// Close database connection
+		defer db.Close()
 		// get end time
 		et := time.Now()
 		fmt.Println("Get All stats Succeeded!")
