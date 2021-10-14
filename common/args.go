@@ -24,7 +24,7 @@ func ParserTbArgs(tbargs string) map[string][]string {
 		// parser table args
 		part := strings.Split(tb, ".")
 		dbName := part[0]
-
+		// 判断 table args 是否有问题
 		if len(part) < 2 {
 			err := fmt.Sprintf("table args: %s is wrong", tb)
 			IfErrPrintE(err)
