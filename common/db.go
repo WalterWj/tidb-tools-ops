@@ -23,18 +23,66 @@ func MysqlConnect(dsn string) *sql.DB {
 	return db
 }
 
-// if database is not exist
-func IfDbNotE(db *sql.DB, dbname string) int {
-	dbQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", strconv.Quote(dbname))
-	sqlResult, err := db.Exec(dbQ)
-	if err == nil {
+// Query
+func Query(db *sql.DB, SQL string) ([]map[string]string, bool) {
+	// execute ques
+	rows, err := db.Query(SQL)
+	if err != nil {
 		IfErrLog(err)
 	}
-	rs, _ := sqlResult.RowsAffected()
-	if rs == 0 {
+	// get columns info
+	columns, _ := rows.Columns()
+	// columns lenth
+	count := len(columns)
+	// values
+	var values = make([]interface{}, count)
+	// 为空接口分配内存
+	for i, _ := range values {
+		var v interface{}
+		values[i] = &v
+	}
+	// make map,  创建返回值：不定长的map类型切片
+	ret := make([]map[string]string, 0)
+	for rows.Next() {
+		//开始读行，Scan函数只接受指针变量
+		err := rows.Scan(values...)
+		//用于存放1列的 [键/值] 对
+		m := make(map[string]string)
+		if err != nil {
+			IfErrLog(err)
+		}
+		for i, colName := range columns {
+			// 读出raw数据，类型为byte
+			var raw_value = *(values[i].(*interface{}))
+			b, _ := raw_value.([]byte)
+			//将raw数据转换成字符串
+			v := string(b)
+			// colName是键，v是值
+			m[colName] = v
+		}
+		// 将单行所有列的键值对附加在总的返回值上（以行为单位）
+		ret = append(ret, m)
+	}
+
+	defer rows.Close()
+
+	if len(ret) != 0 {
+		return ret, true
+	}
+
+	return nil, false
+}
+
+// if database is not exist
+func IfDbNotE(db *sql.DB, dbname string) int {
+	dbQ := fmt.Sprintf("select SCHEMA_NAME as c from information_schema.SCHEMATA where SCHEMA_NAME in (%s);", strconv.Quote(dbname))
+	_, OK := Query(db, dbQ)
+	// 如果库存在，返回为 1，OK 为 true； 如果不存在，OK 为 false，返回为 0
+	if OK {
+		return 1
+	} else {
 		return 0
 	}
-	return 1
 }
 
 // Get table name
@@ -43,7 +91,7 @@ func GetTables(db *sql.DB, dbname string) map[int]string {
 	// Determine whether the database exists
 	rc := IfDbNotE(db, dbname)
 	if rc == 0 {
-		fmt.Printf("Database %s is not exist  \n", dbname)
+		fmt.Printf("[WARN] Database %s is not exist  \n", dbname)
 	}
 	// get tables name
 	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", strconv.Quote(dbname))
