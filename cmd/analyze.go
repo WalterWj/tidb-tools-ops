@@ -72,17 +72,17 @@ var analyzeCmd = &cobra.Command{
 			for _, _tb := range _tblist {
 				wg.Add(1) // 添加计数
 				ch <- struct{}{}
-				go func(_tb string) {
-					rc := test(db, _dbname, _tb)
-					defer fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), dbname, _tb)
+				go func(_dbname string, _tb string) {
+					rc := analyzeTable(db, _dbname, _tb)
+					fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), _dbname, _tb)
 					if rc == 0 {
 						defer wg.Done() // 将计数减1
 						<-ch            // 读取chan
 					} else {
 						errC := strings.Join([]string{"execute analyze ", _dbname, ".", _tb, "failed"}, "")
-						defer common.IfErrPrintE(errC)
+						common.IfErrPrintE(errC)
 					}
-				}(_tb)
+				}(_dbname, _tb)
 			}
 		}
 		// 等待加入的协程全部完成
@@ -98,9 +98,9 @@ var analyzeCmd = &cobra.Command{
 	},
 }
 
-func analyzeTable(db *sql.DB, dbname string, tbname string) int64 {
-	st, err := db.Exec(fmt.Sprintf("analyze table `%s`.`%s`", dbname, tbname))
-	if err == nil {
+func analyzeTable(db *sql.DB, database string, table string) int64 {
+	st, err := db.Exec(fmt.Sprintf("analyze table `%s`.`%s`", database, table))
+	if err != nil {
 		common.IfErrLog(err)
 	}
 	rs, _ := st.RowsAffected()

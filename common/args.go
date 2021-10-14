@@ -25,6 +25,7 @@ func ParserTbArgs(tbargs string) map[string][]string {
 		tbTmp = append(tableMap[dbName], part[1])
 		tableMap[dbName] = tbTmp
 	}
+
 	return tableMap
 }
 

@@ -86,64 +86,19 @@ var statsdumpCmd = &cobra.Command{
 				tableList[dbTmp] = common.MapToArryString(common.GetTables(db, dbTmp))
 			}
 		}
+
+		// Write file
 		for _db, _tbname := range tableList {
+			// db schema,
+			wDbInfo(db, schemaFile, _db)
 			for _, _tb := range _tbname {
+				// table schema
 				wTableInfo(db, schemaFile, _db, _tb)
+				// table states
 				wStatsInfo(statsDir, dbhost, dbStatusPort, _db, _tb)
 				fmt.Printf("Get %s.%s stats Succeeded~\n", _db, _tb)
 			}
 		}
-
-		// if len(dbname) == 0 {
-		// 	// args database is null, args tables is null:
-		// 	if len(dbtable) == 0 {
-		// 		// Get all
-		// 		dblist := common.GetAllDb(db, mode)
-		// 		for _, dbTmp := range dblist {
-		// 			// Write db info
-		// 			wDbInfo(db, schemaFile, dbTmp)
-		// 			// table name
-		// 			tbn := common.GetTables(db, dbTmp)
-		// 			// Write tables information
-		// 			for _, tableName := range tbn {
-		// 				wTableInfo(db, schemaFile, dbTmp, tableName)
-		// 				wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tableName)
-		// 				fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tableName)
-		// 			}
-		// 		}
-		// 		// args database is null, tables is not null:
-		// 	} else {
-		// 		// get tables
-		// 		tablelist := common.ParserTbArgs(dbtable)
-		// 		for dbTmp, tbTmp := range tablelist {
-		// 			// write db info
-		// 			wDbInfo(db, schemaFile, dbTmp)
-		// 			// table name
-		// 			for _, tb := range tbTmp {
-		// 				// write table info
-		// 				wTableInfo(db, schemaFile, dbTmp, tb)
-		// 				wStatsInfo(statsDir, dbhost, dbStatusPort, dbTmp, tb)
-		// 				fmt.Printf("Get %s.%s stats Succeeded~\n", dbTmp, tb)
-		// 			}
-		// 		}
-		// 	}
-		// 	// args database is not null:
-		// } else {
-		// 	// get databases
-		// 	dbTmp := common.ParserDbArgs(dbname)
-		// 	for _, dbName := range dbTmp {
-		// 		// write db info
-		// 		wDbInfo(db, schemaFile, dbName)
-		// 		// tablme name
-		// 		tbName := common.GetTables(db, dbName)
-		// 		for _, tb := range tbName {
-		// 			// write table info
-		// 			wTableInfo(db, schemaFile, dbName, tb)
-		// 			wStatsInfo(statsDir, dbhost, dbStatusPort, dbName, tb)
-		// 			fmt.Printf("Get %s.%s stats Succeeded~\n", dbName, tb)
-		// 		}
-		// 	}
-		// }
 
 		// Close database connection
 		defer db.Close()
