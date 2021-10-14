@@ -18,5 +18,5 @@ func IfErrLog(err error) {
 func IfErrPrintE(errInfo string) {
 	t := time.Unix(0, time.Now().UnixMilli()*1000000)
 	ct := t.Format(time.RFC3339Nano)
-	fmt.Printf("%s [Error] %s\n", ct, errInfo)
+	fmt.Printf("[%s] [Error] %s\n", ct, errInfo)
 }

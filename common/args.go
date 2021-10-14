@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -16,21 +17,30 @@ func ParserDbArgs(dbargs string) []string {
 
 // parser table args
 func ParserTbArgs(tbargs string) map[string][]string {
-	tableList := strings.Split(tbargs, ",")
 	tableMap := make(map[string][]string)
 	var tbTmp []string
+	tableList := strings.Split(tbargs, ",")
 	for _, tb := range tableList {
+		// parser table args
 		part := strings.Split(tb, ".")
 		dbName := part[0]
-		tbTmp = append(tableMap[dbName], part[1])
-		tableMap[dbName] = tbTmp
+
+		if len(part) < 2 {
+			err := fmt.Sprintf("table args: %s is wrong", tb)
+			IfErrPrintE(err)
+		} else {
+			// add table name
+			tbTmp = append(tableMap[dbName], part[1])
+			// make map[dbname]tbname
+			tableMap[dbName] = tbTmp
+		}
 	}
 
 	return tableMap
 }
 
-// map[int]string to []string
-func MapToArryString(maplist map[int]string) []string {
+// map[string]string to []string
+func MapToArryString(maplist map[string]string) []string {
 	var arryString []string
 	for _, _string := range maplist {
 		arryString = append(arryString, _string)

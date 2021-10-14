@@ -74,44 +74,38 @@ func Query(db *sql.DB, SQL string) ([]map[string]string, bool) {
 }
 
 // if database is not exist
-func IfDbNotE(db *sql.DB, dbname string) int {
+func IfDbNotE(db *sql.DB, dbname string) bool {
 	dbQ := fmt.Sprintf("select SCHEMA_NAME as c from information_schema.SCHEMATA where SCHEMA_NAME in (%s);", strconv.Quote(dbname))
 	_, OK := Query(db, dbQ)
-	// 如果库存在，返回为 1，OK 为 true； 如果不存在，OK 为 false，返回为 0
+	// 如果库存在，返回为 true，OK 为 true； 如果不存在，OK 为 false，返回为 false
 	if OK {
-		return 1
+		return true
 	} else {
-		return 0
+		return false
 	}
 }
 
 // Get table name
-func GetTables(db *sql.DB, dbname string) map[int]string {
-	var r = make(map[int]string)
+func GetTables(db *sql.DB, dbname string) map[string]string {
+	var r = make(map[string]string)
 	// Determine whether the database exists
-	rc := IfDbNotE(db, dbname)
-	if rc == 0 {
+	ok := IfDbNotE(db, dbname)
+	if ok {
+		// get tables name
+		tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", strconv.Quote(dbname))
+		sr, ok := Query(db, tablesQ)
+		if ok {
+			for _, _sr := range sr {
+				r[_sr["table_name"]] = _sr["table_name"]
+			}
+			return r
+		} else {
+			fmt.Printf("execute %v fail\n", tablesQ)
+		}
+	} else {
 		fmt.Printf("[WARN] Database %s is not exist  \n", dbname)
 	}
-	// get tables name
-	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", strconv.Quote(dbname))
-	rows, err := db.Query(tablesQ)
-	if err != nil {
-		fmt.Printf("execute %v fail\n", tablesQ)
-	}
-	defer rows.Close()
-	// make tables: map[int]string, {1: test, 2: test1}
-	n := 0
-	for rows.Next() {
-		var t string
-		err := rows.Scan(&t)
-		if err != nil {
-			fmt.Printf("rows scan fail\n")
-			IfErrPrintE(tablesQ)
-		}
-		r[n] = t
-		n++
-	}
+
 	return r
 }
 
@@ -130,25 +124,19 @@ func GetDbSql(mode int) string {
 }
 
 // get db name,ignore 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql'
-func GetAllDb(db *sql.DB, mode int) map[int]string {
-	var r = make(map[int]string)
+func GetAllDb(db *sql.DB, mode int) map[string]string {
+	var r = make(map[string]string)
 	tablesQ := GetDbSql(mode)
-	rows, err := db.Query(tablesQ)
-	if err != nil {
-		fmt.Printf("execute %v fail\n", tablesQ)
-		IfErrLog(err)
-	}
-	defer rows.Close()
-	n := 0
-	for rows.Next() {
-		var t string
-		err := rows.Scan(&t)
-		if err != nil {
-			IfErrPrintE("rows scan fail\n")
+	rows, ok := Query(db, tablesQ)
+	if ok {
+		for _, _rc := range rows {
+			r["TABLE_SCHEMA"] = _rc["TABLE_SCHEMA"]
 		}
-		r[n] = t
-		n++
+		return r
+	} else {
+		fmt.Printf("execute %v fail\n", tablesQ)
 	}
+
 	return r
 }
 
