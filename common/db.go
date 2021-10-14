@@ -23,15 +23,36 @@ func MysqlConnect(dsn string) *sql.DB {
 	return db
 }
 
+// if database is not exist
+func IfDbNotE(db *sql.DB, dbname string) int {
+	dbQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s);", strconv.Quote(dbname))
+	sqlResult, err := db.Exec(dbQ)
+	if err == nil {
+		IfErrLog(err)
+	}
+	rs, _ := sqlResult.RowsAffected()
+	if rs == 0 {
+		return 0
+	}
+	return 1
+}
+
 // Get table name
 func GetTables(db *sql.DB, dbname string) map[int]string {
 	var r = make(map[int]string)
+	// Determine whether the database exists
+	rc := IfDbNotE(db, dbname)
+	if rc == 0 {
+		fmt.Printf("Database %s is not exist  \n", dbname)
+	}
+	// get tables name
 	tablesQ := fmt.Sprintf("select table_name from information_schema.tables where TABLE_SCHEMA in (%s) and TABLE_TYPE <> 'VIEW';", strconv.Quote(dbname))
 	rows, err := db.Query(tablesQ)
 	if err != nil {
 		fmt.Printf("execute %v fail\n", tablesQ)
 	}
 	defer rows.Close()
+	// make tables: map[int]string, {1: test, 2: test1}
 	n := 0
 	for rows.Next() {
 		var t string
