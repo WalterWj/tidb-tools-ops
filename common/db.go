@@ -122,7 +122,7 @@ func GetTableHealthy(db *sql.DB, dbname string, tablename string, healthy int) b
 			if health <= healthy {
 				r = true
 			} else {
-				info := fmt.Sprintf("DB: %s,Table: %s,healthy: %d", dbname, tablename, healthy)
+				info := fmt.Sprintf("DB: %s,Table: %s,healthy: %d", dbname, tablename, health)
 				IfNomalPrintE(info)
 				r = false
 			}
