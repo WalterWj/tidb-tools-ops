@@ -144,5 +144,5 @@ func init() {
 	statsdumpCmd.Flags().StringVarP(&dbtable, "tables", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
 	statsdumpCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
 	statsdumpCmd.Flags().IntVarP(&dbStatusPort, "statusport", "s", 10080, "TiDB Status Port")
-	statsdumpCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database, eg: 1 (default 1)")
+	statsdumpCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database, eg: 1 (default 0)")
 }

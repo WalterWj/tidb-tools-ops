@@ -73,8 +73,8 @@ var analyzeCmd = &cobra.Command{
 				wg.Add(1) // 添加计数
 				ch <- struct{}{}
 				go func(_dbname string, _tb string) {
-					rc := analyzeTable(db, _dbname, _tb)
-					fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), _dbname, _tb)
+					rc := analyzeTable(db, _dbname, _tb, stats_healthy)
+
 					if rc == 0 {
 						defer wg.Done() // 将计数减1
 						<-ch            // 读取chan
@@ -98,14 +98,22 @@ var analyzeCmd = &cobra.Command{
 	},
 }
 
-func analyzeTable(db *sql.DB, database string, table string) int64 {
-	st, err := db.Exec(fmt.Sprintf("analyze table `%s`.`%s`", database, table))
-	if err != nil {
-		common.IfErrLog(err)
+func analyzeTable(db *sql.DB, database string, table string, healthy int) int64 {
+	var rs int64
+	if common.GetTableHealthy(db, database, table, healthy) {
+		st, err := db.Exec(fmt.Sprintf("analyze table `%s`.`%s`", database, table))
+		if err != nil {
+			common.IfErrLog(err)
+		}
+		rs, _ = st.RowsAffected()
+		fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		return rs
+	} else {
+		fmt.Printf("[%s] Skip analyze table: %s.%s\n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		rs = 0
+		return rs
 	}
-	rs, _ := st.RowsAffected()
 
-	return rs
 }
 
 func init() {
@@ -119,4 +127,5 @@ func init() {
 	analyzeCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
 	analyzeCmd.Flags().IntVarP(&thread, "thread", "T", 4, "Number of goroutines to use")
 	analyzeCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database, eg: 1")
+	analyzeCmd.Flags().IntVarP(&stats_healthy, "healthy", "s", 100, "Table stats healthy, If it is below the threshold, then analyze")
 }

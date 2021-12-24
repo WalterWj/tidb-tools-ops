@@ -20,3 +20,10 @@ func IfErrPrintE(errInfo string) {
 	ct := t.Format(time.RFC3339Nano)
 	fmt.Printf("[%s] [Error] %s\n", ct, errInfo)
 }
+
+// nomal print, Continue when an error is reported
+func IfNomalPrintE(Info string) {
+	t := time.Unix(0, time.Now().UnixMilli()*1000000)
+	ct := t.Format(time.RFC3339Nano)
+	fmt.Printf("[%s] %s\n", ct, Info)
+}

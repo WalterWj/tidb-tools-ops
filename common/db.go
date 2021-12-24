@@ -109,7 +109,32 @@ func GetTables(db *sql.DB, dbname string) map[string]string {
 	return r
 }
 
-// get db sql
+// get states healthy for table
+func GetTableHealthy(db *sql.DB, dbname string, tablename string, healthy int) bool {
+	var r bool
+	// get healthy
+	_gh_sql := fmt.Sprintf("show stats_healthy where Db_name in (%s) and Table_name in (%s);;", strconv.Quote(dbname), strconv.Quote(tablename))
+	rows, ok := Query(db, _gh_sql)
+	if ok {
+		for _, _rc := range rows {
+			_result := _rc["Healthy"]
+			health, _ := strconv.Atoi(_result)
+			if health <= healthy {
+				r = true
+			} else {
+				info := fmt.Sprintf("DB: %s,Table: %s,healthy: %d", dbname, tablename, healthy)
+				IfNomalPrintE(info)
+				r = false
+			}
+		}
+		return r
+	} else {
+		fmt.Printf("execute %v fail\n", _gh_sql)
+	}
+	return r
+}
+
+// get db sql for mode
 func GetDbSql(mode int) string {
 	if mode == 0 {
 		tablesQ := `select distinct TABLE_SCHEMA from INFORMATION_SCHEMA.tables where TABLE_SCHEMA 
