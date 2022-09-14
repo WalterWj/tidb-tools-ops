@@ -20,9 +20,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/WalterWj/tidb-tools-ops/common/version"
+	"tidb-tools-ops/common/version"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	logutil "tidb-tools-ops/pkg/logutil"
 )
 
 var (
@@ -108,3 +109,5 @@ var (
 	host, username, password string
 	port                     int
 )
+
+logutil.InitLog("tools.log")

@@ -4,13 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	// logutil "tidb-tools-ops/pkg/logutil"
-
-	"github.com/WalterWj/tidb-tools-ops/pkg/logutil"
+	logutil "github.com/WalterWj/tidb-tools-ops/pkg/logutil"
 )
 
 // db connect
 func MysqlConnect(dsn string) *sql.DB {
+	logutil.InitLog("tools.log")
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		logutil.InfoLog(err.Error())

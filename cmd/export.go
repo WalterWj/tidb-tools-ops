@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/WalterWj/tidb-tools-ops/common"
+	"tidb-tools-ops/common"
 	// _ "github.com/WalterWj/tidb-tools-ops/common/"
 
 	// import mysql

@@ -23,7 +23,7 @@ import (
 	"time"
 
 	// import common
-	"github.com/WalterWj/tidb-tools-ops/common"
+	"tidb-tools-ops/common"
 
 	"github.com/spf13/cobra"
 )

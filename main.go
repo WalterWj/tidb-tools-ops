@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/WalterWj/tidb-tools-ops/cmd"
+import "tidb-tools-ops/cmd"
 
 func main() {
 	cmd.Execute()
