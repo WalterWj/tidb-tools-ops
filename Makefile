@@ -12,7 +12,7 @@ MAIN_FILE := $(shell find . -name "main.go")
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 # build info
-REPO := github.com/WalterWj/tidb-tools-ops
+REPO := tidb-tools-ops
 _build := $(shell git rev-parse HEAD)
 _GOVERSION := $(shell go version)
 _BUILDTIME := $(shell date -d today +'%Y-%m-%d %T')
@@ -40,7 +40,7 @@ clean:
 run:
 	$(GORUN) -n $(MAIN_FILE)
 deps:
-	$(GOGET) github.com/Walterwj/tidb-tools-ops
+	$(GOGET) tidb-tools-ops
 
 # Cross compilation
 build-linux:

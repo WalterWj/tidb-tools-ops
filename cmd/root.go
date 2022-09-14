@@ -21,10 +21,16 @@ import (
 	"github.com/spf13/cobra"
 
 	"tidb-tools-ops/common/version"
+	logutil "tidb-tools-ops/pkg/logutil"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-	logutil "tidb-tools-ops/pkg/logutil"
 )
+
+func init() {
+	// init log file
+	logutil.InitLog("tools.log")
+}
 
 var (
 	cfgFile      string
@@ -109,5 +115,3 @@ var (
 	host, username, password string
 	port                     int
 )
-
-logutil.InitLog("tools.log")
