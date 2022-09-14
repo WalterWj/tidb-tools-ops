@@ -6,29 +6,12 @@ import (
 	"os"
 )
 
-// interface
-type Logs interface {
-	// init log file
-	InitLog()
-	// write info log file
-	InfoLog()
-	// write error log file
-	ErrorLog()
-	// write warning log file
-	WarningLog()
-}
-
 // var warning/info/error log
 var (
 	WarningLogger *log.Logger
 	InfoLogger    *log.Logger
 	ErrorLogger   *log.Logger
 )
-
-// log content
-type Content struct {
-	Content string
-}
 
 // init log file
 func InitLog(fileName string) error {
@@ -46,16 +29,16 @@ func InitLog(fileName string) error {
 }
 
 // info log
-func (c Content) InfoLog() {
-	InfoLogger.Println(c.Content)
+func InfoLog(c string) {
+	InfoLogger.Println(c)
 }
 
 // error log
-func (c Content) ErrorLog() {
-	ErrorLogger.Println(c.Content)
+func ErrorLog(c string) {
+	ErrorLogger.Println(c)
 }
 
 // warning log
-func (c Content) WarningLog() {
-	WarningLogger.Println(c.Content)
+func WarningLog(c string) {
+	WarningLogger.Println(c)
 }

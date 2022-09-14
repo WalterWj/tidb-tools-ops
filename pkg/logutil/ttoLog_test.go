@@ -15,14 +15,10 @@ func TestInitlog(t *testing.T) {
 }
 
 func TestInfoLog(t *testing.T) {
-	var log Content
 	InitLog("test.test")
-	log = Content{"info msg"}
-	log.InfoLog()
-	log = Content{"error msg"}
-	log.ErrorLog()
-	log = Content{"warning msg"}
-	log.WarningLog()
+	InfoLog("info msg")
+	ErrorLog("error msg")
+	WarningLog("warning msg")
 	data, _ := os.ReadFile("test.test")
 	want := 116
 	// delete tmp file
