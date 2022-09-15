@@ -21,9 +21,9 @@ func InitLog(fileName string) error {
 		return err
 	}
 
-	InfoLogger = log.New(file, "[INFO] ", log.Ldate|log.Ltime)
-	WarningLogger = log.New(file, "[WARNING] ", log.Ldate|log.Ltime)
-	ErrorLogger = log.New(file, "[ERROR] ", log.Ldate|log.Ltime)
+	InfoLogger = log.New(file, "[INFO] ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+	WarningLogger = log.New(file, "[WARNING] ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+	ErrorLogger = log.New(file, "[ERROR] ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 
 	return nil
 }

@@ -20,10 +20,11 @@ func TestInfoLog(t *testing.T) {
 	ErrorLog("error msg")
 	WarningLog("warning msg")
 	data, _ := os.ReadFile("test.test")
-	want := 116
+	want := 179
 	// delete tmp file
 	defer os.Remove("test.test")
 	fmt.Println(len(data))
+	os.Stdout.Write(data)
 	if want != len(data) {
 		t.Fatalf(`%d`, len(data))
 	}
