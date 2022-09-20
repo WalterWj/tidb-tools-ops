@@ -4,29 +4,37 @@ import (
 	"database/sql"
 	"errors"
 
+	_ "github.com/go-sql-driver/mysql"
+
 	log "tidb-tools-ops/pkg/logutil"
 )
 
 // db connect
-func MysqlConnect(dsn string) *sql.DB {
-	db, err := sql.Open("mysql", dsn)
+func MysqlConnect(dsn string) (*sql.DB, error) {
+	Db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.ErrorLog("connect db fail." + err.Error())
-	}
-	err = db.Ping()
-	if err != nil {
-		log.ErrorLog("Connect MySQL fail~")
+		return nil, errors.New("connect db fail.\n" + err.Error())
 	}
 
-	return db
+	err = Db.Ping()
+	if err != nil {
+		log.ErrorLog("Ping MySQL fail~")
+		return nil, errors.New("Ping MySQL fail~\n" + err.Error())
+	}
+
+	return Db, nil
 }
 
-// Query
+// Query return []map[string]string, error
 func Query(db *sql.DB, SQL string) ([]map[string]string, error) {
+	// make map,  创建返回值：不定长的map类型切片
+	ret := make([]map[string]string, 0)
 	// execute ques
 	rows, err := db.Query(SQL)
 	if err != nil {
 		log.ErrorLog(err.Error())
+		return ret, errors.New("Query fail,\n" + err.Error())
 	}
 	// get columns info
 	columns, _ := rows.Columns()
@@ -39,8 +47,6 @@ func Query(db *sql.DB, SQL string) ([]map[string]string, error) {
 		var v interface{}
 		values[i] = &v
 	}
-	// make map,  创建返回值：不定长的map类型切片
-	ret := make([]map[string]string, 0)
 	for rows.Next() {
 		//开始读行，Scan函数只接受指针变量
 		err := rows.Scan(values...)
@@ -48,6 +54,7 @@ func Query(db *sql.DB, SQL string) ([]map[string]string, error) {
 		m := make(map[string]string)
 		if err != nil {
 			log.ErrorLog(err.Error())
+			return ret, errors.New("row scan fail\n" + err.Error())
 		}
 		for i, colName := range columns {
 			// 读出raw数据，类型为byte
@@ -68,5 +75,5 @@ func Query(db *sql.DB, SQL string) ([]map[string]string, error) {
 		return ret, nil
 	}
 
-	return nil, errors.New("0 rows")
+	return ret, errors.New("effect 0 rows")
 }
