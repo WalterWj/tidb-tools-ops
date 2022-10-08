@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"strings"
 
-	"tidb-tools-ops/common"
+	dbutil "tidb-tools-ops/pkg/dbutil"
+	file "tidb-tools-ops/pkg/fileutil"
+	log "tidb-tools-ops/pkg/logutil"
 
 	// import mysql
 	_ "github.com/go-sql-driver/mysql"
@@ -37,40 +39,44 @@ var exportCmd = &cobra.Command{
 	Long:  `export your users and passowrd for TiDB`,
 	Run: func(cmd *cobra.Command, args []string) {
 		dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", fmt.Sprint(port), ")/", "mysql?charset=utf8"}, "")
-		db := common.MysqlConnect(dsn)
+		db, err := dbutil.MysqlConnect(dsn)
+		if err != nil {
+			log.ErrorLog(err.Error())
+		}
 		rows, err := db.Query(userQ)
 		if err != nil {
-			fmt.Printf("execute %v fail", userQ)
+			log.ErrorLog(fmt.Sprintf("execute %v fail: %v", userQ, err.Error()))
 		}
 		var user, host, pas, grant string
 		for rows.Next() {
 			err := rows.Scan(&user, &host, &pas)
 			if err != nil {
-				fmt.Println("error is ", err)
+				log.ErrorLog(fmt.Sprintln("error is ", err.Error()))
 			}
 			createuser := strings.Join([]string{"create user ", user, "@", host, ";"}, "'")
 			userinfo := strings.Join([]string{"update mysql.user set `authentication_string`=", pas, " where user=", user, " and host=", host, ";"}, "'")
 			grantQ := strings.Join([]string{"SHOW GRANTS FOR ", user, "@", host, ";"}, "'")
 
-			common.Addfile("users.sql", createuser)
-			common.Addfile("users.sql", userinfo)
+			file.Addfile("users.sql", createuser)
+			file.Addfile("users.sql", userinfo)
 			gRows, err := db.Query(grantQ)
 			if err != nil {
-				fmt.Printf("execute %v fail", grantQ)
+				log.ErrorLog(fmt.Sprintf("execute %v fail: %v", grantQ, err.Error()))
 			}
 			for gRows.Next() {
 				err := gRows.Scan(&grant)
 				if err != nil {
-					fmt.Println("error is ", err)
+					log.ErrorLog(fmt.Sprintln("error is ", err.Error()))
 				}
 				grant = strings.Join([]string{grant, ";"}, "")
 
-				common.Addfile("users.sql", grant)
+				file.Addfile("users.sql", grant)
 			}
-			common.Addfile("users.sql", "")
+			file.Addfile("users.sql", "")
 		}
 
 		fmt.Println("Successfully introduce all users and permissions.")
+		log.InfoLog("Successfully introduce all users and permissions.")
 	},
 }
 

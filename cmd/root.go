@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"tidb-tools-ops/common/version"
-	logutil "tidb-tools-ops/pkg/logutil"
+	"tidb-tools-ops/internal/version"
+	log "tidb-tools-ops/pkg/logutil"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -29,7 +29,7 @@ import (
 
 func init() {
 	// init log file
-	logutil.InitLog("tools.log")
+	log.InitLog("tools.log")
 }
 
 var (
@@ -108,9 +108,10 @@ func initConfig() {
 
 // other var
 var (
-	// statusdump & analyze
-	dbhost, dbname, dbusername, dbpassword, dbtable   string
-	dbport, dbStatusPort, mode, thread, stats_healthy int
+	// analyze
+	dbhost, dbname, dbusername, dbpassword, dbtable string
+	dbport, mode, thread, stats_healthy             int
+	// dbStatusPort int
 	// export
 	host, username, password string
 	port                     int

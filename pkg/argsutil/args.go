@@ -1,8 +1,9 @@
-package common
+package argsutil
 
 import (
 	"fmt"
 	"strings"
+	log "tidb-tools-ops/pkg/logutil"
 )
 
 func init() {
@@ -26,8 +27,7 @@ func ParserTbArgs(tbargs string) map[string][]string {
 		dbName := part[0]
 		// 判断 table args 是否有问题
 		if len(part) < 2 {
-			err := fmt.Sprintf("table args: %s is wrong", tb)
-			IfErrPrintE(err)
+			log.ErrorLog(fmt.Sprintf("table args: %s is wrong", tb))
 		} else {
 			// add table name
 			tbTmp = append(tableMap[dbName], part[1])

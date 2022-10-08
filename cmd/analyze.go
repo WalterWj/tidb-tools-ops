@@ -21,7 +21,9 @@ import (
 	"sync"
 	"time"
 
-	"tidb-tools-ops/common"
+	"tidb-tools-ops/pkg/argsutil"
+	dbutil "tidb-tools-ops/pkg/dbutil"
+	"tidb-tools-ops/pkg/logutil"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +38,10 @@ var analyzeCmd = &cobra.Command{
 		st := time.Now()
 		// connect db
 		dsn := strings.Join([]string{dbusername, ":", dbpassword, "@tcp(", dbhost, ":", fmt.Sprint(dbport), ")/", "mysql?charset=utf8"}, "")
-		db := common.MysqlConnect(dsn)
+		db, err := dbutil.MysqlConnect(dsn)
+		if err != nil {
+			logutil.ErrorLog(err.Error())
+		}
 
 		// table list
 		var tableList = make(map[string][]string)
@@ -46,22 +51,22 @@ var analyzeCmd = &cobra.Command{
 			// args database is null, args tables is null:
 			if len(dbtable) == 0 {
 				// Get all
-				dblist := common.GetAllDb(db, mode)
+				dblist := dbutil.GetAllDb(db, mode)
 				for _, dbTmp := range dblist {
 					// get all database and tables:
-					tableList[dbTmp] = common.MapToArryString(common.GetTables(db, dbTmp))
+					tableList[dbTmp] = argsutil.MapToArryString(dbutil.GetTables(db, dbTmp))
 				}
 			} else {
 				// args: database is null, tables is not null:
 				// get tables
-				tableList = common.ParserTbArgs(dbtable)
+				tableList = argsutil.ParserTbArgs(dbtable)
 			}
 		} else {
 			// args database is not null:
 			// get databases
-			dblist := common.ParserDbArgs(dbname)
+			dblist := argsutil.ParserDbArgs(dbname)
 			for _, dbTmp := range dblist {
-				tableList[dbTmp] = common.MapToArryString(common.GetTables(db, dbTmp))
+				tableList[dbTmp] = argsutil.MapToArryString(dbutil.GetTables(db, dbTmp))
 			}
 		}
 
@@ -81,7 +86,7 @@ var analyzeCmd = &cobra.Command{
 						<-ch            // 读取chan
 					} else {
 						errC := strings.Join([]string{"execute analyze ", _dbname, ".", _tb, "failed"}, "")
-						common.IfErrPrintE(errC)
+						logutil.ErrorLog(errC)
 					}
 				}(_dbname, _tb)
 			}
@@ -101,10 +106,10 @@ var analyzeCmd = &cobra.Command{
 
 func analyzeTable(db *sql.DB, database string, table string, healthy int) int64 {
 	var rs int64
-	if common.GetTableHealthy(db, database, table, healthy) {
+	if dbutil.GetTableHealthy(db, database, table, healthy) {
 		st, err := db.Exec(fmt.Sprintf("analyze table `%s`.`%s`", database, table))
 		if err != nil {
-			common.IfErrLog(err)
+			logutil.ErrorLog(err.Error())
 		}
 		rs, _ = st.RowsAffected()
 		fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
