@@ -19,10 +19,10 @@ _BUILDTIME := $(shell date -d today +'%Y-%m-%d %T')
 _VERSION := $(shell git symbolic-ref --short HEAD)
 # 编译中传入：版本，go 版本，git hash，build 时间
 LDFLAGS := 
-LDFLAGS += "-X $(REPO)/common/version.build=$(_build)
-LDFLAGS += -X '$(REPO)/common/version.goVersion=$(_GOVERSION)'
-LDFLAGS += -X '$(REPO)/common/version.version=$(_VERSION)'
-LDFLAGS += -X '$(REPO)/common/version.buildTime=$(_BUILDTIME)'" 
+LDFLAGS += "-X $(REPO)/internal/version.build=$(_build)
+LDFLAGS += -X '$(REPO)/internal/version.goVersion=$(_GOVERSION)'
+LDFLAGS += -X '$(REPO)/internal/version.version=$(_VERSION)'
+LDFLAGS += -X '$(REPO)/internal/version.buildTime=$(_BUILDTIME)'" 
 # flags="-X main.cmd.build=`git rev-parse HEAD` -X main.cmd.goVersion=`go version` -X main.cmd.buildTime=`date -d today +'%Y-%m-%d %T'`"
 
 .PHONY: cmd
