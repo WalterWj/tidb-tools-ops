@@ -30,15 +30,18 @@ func InitLog(fileName string) error {
 
 // info log
 func InfoLog(c string) {
-	InfoLogger.Println(c)
+	InfoLogger.Output(2, c)
+	// InfoLogger.Println(c)
 }
 
 // error log
 func ErrorLog(c string) {
-	ErrorLogger.Println(c)
+	InfoLogger.Output(2, c)
+	// ErrorLogger.Println(c)
 }
 
 // warning log
 func WarningLog(c string) {
-	WarningLogger.Println(c)
+	InfoLogger.Output(2, c)
+	// WarningLogger.Println(c)
 }

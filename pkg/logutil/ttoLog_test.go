@@ -21,7 +21,7 @@ func TestInfoLog(t *testing.T) {
 	logutil.ErrorLog("error msg")
 	logutil.WarningLog("warning msg")
 	data, _ := os.ReadFile("test.test")
-	want := 179
+	want := 190
 	// delete tmp file
 	defer os.Remove("test.test")
 	fmt.Println(len(data))
