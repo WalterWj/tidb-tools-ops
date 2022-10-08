@@ -77,7 +77,9 @@ func GetDbSql(mode int) string {
 		tablesQ := `select distinct TABLE_SCHEMA from INFORMATION_SCHEMA.tables;`
 		return tablesQ
 	} else {
-		panic("Please input 0/1 for mode")
+		err := "Please input 0/1 for mode"
+		log.ErrorLog(err)
+		return err
 	}
 }
 
