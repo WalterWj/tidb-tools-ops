@@ -1,13 +1,14 @@
-package logutil
+package logutil_test
 
 import (
 	"fmt"
 	"os"
 	"testing"
+	"tidb-tools-ops/pkg/logutil"
 )
 
 func TestInitlog(t *testing.T) {
-	err := InitLog("/root/test.test")
+	err := logutil.InitLog("/root/test.test")
 	want := "open /root/test.test: permission denied"
 	if want != err.Error() {
 		t.Fatalf(`InitLog("/root/test.test") = %s, want "", error`, err.Error())
@@ -15,10 +16,10 @@ func TestInitlog(t *testing.T) {
 }
 
 func TestInfoLog(t *testing.T) {
-	InitLog("test.test")
-	InfoLog("info msg")
-	ErrorLog("error msg")
-	WarningLog("warning msg")
+	logutil.InitLog("test.test")
+	logutil.InfoLog("info msg")
+	logutil.ErrorLog("error msg")
+	logutil.WarningLog("warning msg")
 	data, _ := os.ReadFile("test.test")
 	want := 179
 	// delete tmp file
