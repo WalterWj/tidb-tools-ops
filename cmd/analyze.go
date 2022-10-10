@@ -99,8 +99,10 @@ var analyzeCmd = &cobra.Command{
 		// get end time
 		et := time.Now()
 		fmt.Println("Analyze All tables Succeeded")
+		logutil.InfoLog("Analyze All tables Succeeded")
 		// total cost time
 		fmt.Printf("Total Cost time: %s\n", et.Sub(st))
+		logutil.InfoLog(fmt.Sprintf("Total Cost time: %s\n", et.Sub(st)))
 	},
 }
 
@@ -113,9 +115,11 @@ func analyzeTable(db *sql.DB, database string, table string, healthy int) int64 
 		}
 		rs, _ = st.RowsAffected()
 		fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		logutil.InfoLog(fmt.Sprintf("analyze table: %s.%s Sucessfull \n", database, table))
 		return rs
 	} else {
 		fmt.Printf("[%s] Skip analyze table: %s.%s\n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		logutil.InfoLog(fmt.Sprintf("Skip table: %s.%s Sucessfull \n", database, table))
 		rs = 0
 		return rs
 	}
