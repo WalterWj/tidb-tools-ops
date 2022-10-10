@@ -37,7 +37,8 @@ func GetTables(db *sql.DB, dbname string) map[string]string {
 			fmt.Printf("execute %v fail\n", tablesQ)
 		}
 	} else {
-		fmt.Printf("[WARN] Database %s is not exist  \n", dbname)
+		// fmt.Printf("[WARN] Database %s is not exist  \n", dbname)
+		log.WarningLog(fmt.Sprintf("[WARN] Database %s is not exist  \n", dbname))
 	}
 
 	return r
@@ -94,7 +95,8 @@ func GetAllDb(db *sql.DB, mode int) map[string]string {
 		}
 		return r
 	} else {
-		fmt.Printf("execute %v fail\n", tablesQ)
+		// fmt.Printf("execute %v fail\n", tablesQ)
+		log.ErrorLog(fmt.Sprintf("execute %v fail\n", tablesQ))
 	}
 
 	return r
