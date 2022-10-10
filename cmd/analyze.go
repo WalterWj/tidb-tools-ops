@@ -114,11 +114,11 @@ func analyzeTable(db *sql.DB, database string, table string, healthy int) int64 
 			logutil.ErrorLog(err.Error())
 		}
 		rs, _ = st.RowsAffected()
-		fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		// fmt.Printf("[%s] analyze table: %s.%s Sucessfull \n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
 		logutil.InfoLog(fmt.Sprintf("analyze table: %s.%s Sucessfull \n", database, table))
 		return rs
 	} else {
-		fmt.Printf("[%s] Skip analyze table: %s.%s\n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
+		// fmt.Printf("[%s] Skip analyze table: %s.%s\n", time.Unix(0, time.Now().UnixMilli()*1000000), database, table)
 		logutil.InfoLog(fmt.Sprintf("Skip table: %s.%s Sucessfull \n", database, table))
 		rs = 0
 		return rs
