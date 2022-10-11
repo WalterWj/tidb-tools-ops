@@ -16,7 +16,8 @@ REPO := tidb-tools-ops
 _build := $(shell git rev-parse HEAD)
 _GOVERSION := $(shell go version)
 _BUILDTIME := $(shell date -d today +'%Y-%m-%d %T')
-_VERSION := $(shell git symbolic-ref --short HEAD)
+# _VERSION := $(shell git symbolic-ref --short HEAD)
+_VERSION := $(shell git branch --show-current)
 # 编译中传入：版本，go 版本，git hash，build 时间
 LDFLAGS := 
 LDFLAGS += "-X $(REPO)/internal/version.build=$(_build)
