@@ -48,7 +48,7 @@ func GetTables(db *sql.DB, dbname string) map[string]string {
 func GetTableHealthy(db *sql.DB, dbname string, tablename string, healthy int) bool {
 	var r bool
 	// get healthy
-	_gh_sql := fmt.Sprintf("show stats_healthy where Db_name in (%s) and Table_name in (%s);;", strconv.Quote(dbname), strconv.Quote(tablename))
+	_gh_sql := fmt.Sprintf("show stats_healthy where Db_name in (%s) and Table_name in (%s);", strconv.Quote(dbname), strconv.Quote(tablename))
 	rows, ok := Query(db, _gh_sql)
 	if ok == nil {
 		for _, _rc := range rows {

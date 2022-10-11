@@ -25,3 +25,7 @@ make
 ## 功能一
 
 导出当前 TIDB 所有账户的密码，权限，生成 users.sql 文件。可以 [tidb-tools-ops export](./doc/export_users.md) 导出。
+
+## 功能二
+
+按照一定条件对 TiDB 集群的表进行并行的统计信息收集。可以使用 [tidb-tools-ops analyze](./doc/analyze.md) 命令。
