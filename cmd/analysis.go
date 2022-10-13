@@ -43,4 +43,13 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// analysisCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	analysisCmd.Flags().StringVarP(&dbusername, "user", "u", "root", "Username with privileges to run the analyze")
+	analysisCmd.Flags().StringVarP(&dbname, "database", "d", "", "Database name, eg: db1,db2,db3")
+	analysisCmd.Flags().StringVarP(&dbhost, "host", "H", "127.0.0.1", "Database host")
+	analysisCmd.Flags().StringVarP(&dbpassword, "password", "p", "123456", "Database passowrd")
+	analysisCmd.Flags().StringVarP(&dbtable, "tables", "t", "", "table names, eg: db1.table1,db1.table2,db2.table3")
+	analysisCmd.Flags().IntVarP(&dbport, "port", "P", 4000, "Database Port")
+	analysisCmd.Flags().IntVarP(&thread, "thread", "T", 4, "Number of goroutines to use")
+	analysisCmd.Flags().IntVarP(&mode, "mode", "m", 0, "Ignore system database, eg: 1")
+	analysisCmd.Flags().IntVarP(&stats_healthy, "healthy", "s", 100, "Table stats healthy, If it is below the threshold, then analyze")
 }
