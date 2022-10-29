@@ -144,7 +144,7 @@ func GetAllDb(db *sql.DB, mode int) map[string]string {
 	rows, ok := Query(db, tablesQ)
 	if ok == nil {
 		for _, _rc := range rows {
-			r["TABLE_SCHEMA"] = _rc["TABLE_SCHEMA"]
+			r[_rc["TABLE_SCHEMA"]] = _rc["TABLE_SCHEMA"]
 		}
 		return r
 	} else {

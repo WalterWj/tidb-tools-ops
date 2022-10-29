@@ -3,6 +3,8 @@ package analysis
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
+	"os"
 	"tidb-tools-ops/pkg/logutil"
 )
 
@@ -25,7 +27,7 @@ GROUP BY
 Digest
 ORDER BY
 SUM(Request_count) DESC
-LIMIT 10;`
+LIMIT 2;`
 
 type Topsql struct {
 	Digest            string
@@ -51,11 +53,30 @@ func AnalysisTopSql(db *sql.DB, Stime string, Etime string) {
 		if err != nil {
 			logutil.ErrorLog(err.Error())
 		}
-		c.Out()
+		// c.Out()
+		c.OutHtml()
 	}
 
 }
 
 func (c Topsql) Out() {
 	fmt.Println(c)
+}
+
+func (c Topsql) OutHtml() {
+	const TableHtml = `
+<tr>
+<td>{{ .Digest }}</td>
+<td>{{ .Exec_count }} </td>
+<td>{{ .Avg_Query_time }}</td>
+<td>{{ .Sum_Query_time }}</td>
+<td>{{ .Sum_Cop_time }}</td>
+<td>{{ .Sum_Request_count }}</td>
+<td>{{ .Sum_Process_keys }}</td>
+<td>{{ .Sum_Total_keys }}</td>
+<td>{{ .Query }}</td>
+</tr>
+`
+	t := template.Must(template.New("tables").Parse(TableHtml))
+	t.Execute(os.Stdout, c)
 }
