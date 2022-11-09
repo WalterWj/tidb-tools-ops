@@ -18,6 +18,11 @@ func TestTopsql(t *testing.T) {
 		fmt.Println(err.Error())
 	}
 
-	analysis.AnalysisTopSql(db, "2021/10/10 10:00:00", "2022/10/10 12:00:00")
+	ct := make(chan analysis.Topsql)
+
+	go analysis.AnalysisTopSql(db, "2021/10/10 10:00:00", "2022/10/10 12:00:00", ct)
+	analysis.OutHtml(ct)
+
+	// ct.Out()
 
 }

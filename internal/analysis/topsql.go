@@ -41,7 +41,7 @@ type Topsql struct {
 	Query             string
 }
 
-func AnalysisTopSql(db *sql.DB, Stime string, Etime string) {
+func AnalysisTopSql(db *sql.DB, Stime string, Etime string, ct chan Topsql) {
 	rows, err := db.Query(topsql, Stime, Etime)
 	if err != nil {
 		logutil.ErrorLog(err.Error())
@@ -53,17 +53,27 @@ func AnalysisTopSql(db *sql.DB, Stime string, Etime string) {
 		if err != nil {
 			logutil.ErrorLog(err.Error())
 		}
+
+		ct <- c
 		// c.Out()
-		c.OutHtml()
+		// c.OutHtml()
 	}
 
+	close(ct)
 }
 
-func (c Topsql) Out() {
-	fmt.Println(c)
+func Out(c chan Topsql) {
+	for {
+		ct, ok := <-c
+		if !ok {
+			return
+		} else {
+			fmt.Printf("指纹码: %v\n执行次数: %v\n", ct.Digest, ct.Exec_count)
+		}
+	}
 }
 
-func (c Topsql) OutHtml() {
+func OutHtml(c chan Topsql) {
 	const TableHtml = `
 <tr>
 <td>{{ .Digest }}</td>
@@ -77,6 +87,15 @@ func (c Topsql) OutHtml() {
 <td>{{ .Query }}</td>
 </tr>
 `
-	t := template.Must(template.New("tables").Parse(TableHtml))
-	t.Execute(os.Stdout, c)
+
+	for {
+		ct, ok := <-c
+		if !ok {
+			return
+		} else {
+			t := template.Must(template.New("tables").Parse(TableHtml))
+			t.Execute(os.Stdout, ct)
+		}
+	}
+
 }
