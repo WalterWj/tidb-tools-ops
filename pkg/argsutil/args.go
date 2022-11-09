@@ -10,13 +10,13 @@ func init() {
 	// fmt.Println("file mould init funcation")
 }
 
-// parser db args
+// parser db args: test, test1, test2
 func ParserDbArgs(dbargs string) []string {
 	dbList := strings.Split(dbargs, ",")
 	return dbList
 }
 
-// parser table args
+// parser table args: test1.t1, test1.t2, test2,t1
 func ParserTbArgs(tbargs string) map[string][]string {
 	tableMap := make(map[string][]string)
 	var tbTmp []string
